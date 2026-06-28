@@ -187,6 +187,7 @@ model QueueTicket {
   counterId       String?      @map("counter_id")
   facultyListId   String       @map("faculty_list_id")
   ticketNumber    String       @map("ticket_number")
+  sequenceNumber  Int          @map("sequence_number")
   token           String       @unique
   status          TicketStatus @default(WAITING)
   createdAt       DateTime     @default(now()) @map("created_at")
@@ -198,6 +199,7 @@ model QueueTicket {
   facultyList FacultyList @relation(fields: [facultyListId], references: [id])
 
   @@unique([eventId, ticketNumber])
+  @@unique([eventId, facultyListId, sequenceNumber])
   @@index([eventId, status, createdAt])
   @@index([eventId, facultyListId, status, createdAt])
   @@map("queue_tickets")

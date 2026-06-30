@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: queue-pilot-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: queue_pilot
+      POSTGRES_PASSWORD: queue_pilot_password
+      POSTGRES_DB: queue_pilot
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

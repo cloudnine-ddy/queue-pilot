@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import { Server } from 'socket.io';
 import { eventsRouter } from './modules/events/events.routes.js';
+import { facultiesRouter } from './modules/faculties/faculties.routes.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -21,6 +22,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api', eventsRouter);
+app.use('/api', facultiesRouter);
 
 app.use((err, _req, res, _next) => {
   console.error(err);

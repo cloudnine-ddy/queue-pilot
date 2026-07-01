@@ -5,6 +5,7 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { Server } from 'socket.io';
+import { eventsRouter } from './modules/events/events.routes.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -17,6 +18,13 @@ app.use(morgan('dev'));
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
+});
+
+app.use('/api', eventsRouter);
+
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  res.status(500).json({ message: 'Internal server error.' });
 });
 
 const server = http.createServer(app);

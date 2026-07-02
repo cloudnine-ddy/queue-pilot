@@ -6,6 +6,7 @@ import {
   skipTicket,
 } from '../api/operatorApi.js';
 import { getActiveEvent, getEventFaculties } from '../api/publicApi.js';
+import { socket } from '../api/realtimeClient.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 import { OperatorCallPanel } from '../components/OperatorCallPanel.jsx';
 
@@ -47,6 +48,50 @@ export function OperatorQueuePage() {
 
     loadOperatorData();
   }, []);
+
+  useEffect(() => {
+    if (!event?.id || !selectedFacultyId) {
+      return undefined;
+    }
+
+    const roomPayload = {
+      eventId: event.id,
+      facultyId: selectedFacultyId,
+    };
+
+    function joinQueueRoom() {
+      socket.emit('queue:join', roomPayload);
+    }
+
+    async function handleQueueUpdated(payload) {
+      if (payload.eventId !== event.id || payload.facultyId !== selectedFacultyId) {
+        return;
+      }
+
+      try {
+        const tickets = await getWaitingTickets(event.id, selectedFacultyId);
+        setWaitingTickets(tickets);
+      } catch (socketError) {
+        setError(socketError.message);
+      }
+    }
+
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    socket.on('connect', joinQueueRoom);
+    socket.on('server:ready', joinQueueRoom);
+    socket.on('queue:updated', handleQueueUpdated);
+    joinQueueRoom();
+
+    return () => {
+      socket.emit('queue:leave', roomPayload);
+      socket.off('connect', joinQueueRoom);
+      socket.off('server:ready', joinQueueRoom);
+      socket.off('queue:updated', handleQueueUpdated);
+    };
+  }, [event?.id, selectedFacultyId]);
 
   async function handleChangeFaculty(facultyId) {
     setSelectedFacultyId(facultyId);

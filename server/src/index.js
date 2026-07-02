@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import { Server } from 'socket.io';
 import { eventsRouter } from './modules/events/events.routes.js';
 import { facultiesRouter } from './modules/faculties/faculties.routes.js';
+import { operatorsRouter } from './modules/operators/operators.routes.js';
 import { ticketsRouter } from './modules/tickets/tickets.routes.js';
 
 const app = express();
@@ -24,6 +25,7 @@ app.get('/health', (_req, res) => {
 
 app.use('/api', eventsRouter);
 app.use('/api', facultiesRouter);
+app.use('/api', operatorsRouter);
 app.use('/api', ticketsRouter);
 
 app.use((err, _req, res, _next) => {

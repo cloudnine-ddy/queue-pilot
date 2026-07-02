@@ -1,4 +1,21 @@
 import { prisma } from '../../db/prisma.js';
+import {
+  emitQueueUpdated,
+  emitTicketUpdated,
+} from '../realtime/realtime.service.js';
+
+function toOperatorTicket(ticket) {
+  return {
+    id: ticket.id,
+    ticketNumber: ticket.ticketNumber,
+    sequenceNumber: ticket.sequenceNumber,
+    status: ticket.status,
+    createdAt: ticket.createdAt,
+    calledAt: ticket.calledAt,
+    faculty: ticket.faculty,
+    event: ticket.event,
+  };
+}
 
 async function getActiveEventFaculty(eventId, facultyId) {
   const eventFaculty = await prisma.eventFaculty.findUnique({
@@ -71,7 +88,7 @@ export async function callNextTicket(eventId, facultyId) {
     throw error;
   }
 
-  return prisma.queueTicket.update({
+  const calledTicket = await prisma.queueTicket.update({
     where: {
       id: nextTicket.id,
     },
@@ -81,8 +98,11 @@ export async function callNextTicket(eventId, facultyId) {
     },
     select: {
       id: true,
+      eventId: true,
+      facultyId: true,
       ticketNumber: true,
       sequenceNumber: true,
+      token: true,
       status: true,
       createdAt: true,
       calledAt: true,
@@ -102,6 +122,11 @@ export async function callNextTicket(eventId, facultyId) {
       },
     },
   });
+
+  emitQueueUpdated(calledTicket.eventId, calledTicket.facultyId);
+  emitTicketUpdated(calledTicket.token);
+
+  return toOperatorTicket(calledTicket);
 }
 
 async function updateCalledTicketStatus(ticketId, status) {
@@ -125,13 +150,16 @@ async function updateCalledTicketStatus(ticketId, status) {
     throw error;
   }
 
-  return prisma.queueTicket.update({
+  const updatedTicket = await prisma.queueTicket.update({
     where: { id: ticketId },
     data: { status },
     select: {
       id: true,
+      eventId: true,
+      facultyId: true,
       ticketNumber: true,
       sequenceNumber: true,
+      token: true,
       status: true,
       createdAt: true,
       calledAt: true,
@@ -151,6 +179,11 @@ async function updateCalledTicketStatus(ticketId, status) {
       },
     },
   });
+
+  emitQueueUpdated(updatedTicket.eventId, updatedTicket.facultyId);
+  emitTicketUpdated(updatedTicket.token);
+
+  return toOperatorTicket(updatedTicket);
 }
 
 export async function completeTicket(ticketId) {

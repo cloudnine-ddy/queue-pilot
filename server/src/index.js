@@ -8,6 +8,7 @@ import { Server } from 'socket.io';
 import { eventsRouter } from './modules/events/events.routes.js';
 import { facultiesRouter } from './modules/faculties/faculties.routes.js';
 import { operatorsRouter } from './modules/operators/operators.routes.js';
+import { initializeRealtime } from './modules/realtime/realtime.service.js';
 import { ticketsRouter } from './modules/tickets/tickets.routes.js';
 
 const app = express();
@@ -44,9 +45,7 @@ const io = new Server(server, {
   }
 });
 
-io.on('connection', (socket) => {
-  socket.emit('server:ready', { status: 'connected' });
-});
+initializeRealtime(io);
 
 server.listen(port, () => {
   console.log(`Server listening on http://localhost:${port}`);

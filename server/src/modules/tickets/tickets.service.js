@@ -1,5 +1,6 @@
 import crypto from 'node:crypto';
 import { prisma } from '../../db/prisma.js';
+import { emitQueueUpdated } from '../realtime/realtime.service.js';
 
 export async function createTicket(eventId, facultyId) {
   const eventFaculty = await prisma.eventFaculty.findUnique({
@@ -45,7 +46,7 @@ export async function createTicket(eventId, facultyId) {
 
   const token = crypto.randomUUID();
 
-  return prisma.queueTicket.create({
+  const ticket = await prisma.queueTicket.create({
     data: {
       eventId,
       facultyId,
@@ -69,6 +70,10 @@ export async function createTicket(eventId, facultyId) {
       },
     },
   });
+
+  emitQueueUpdated(eventId, facultyId);
+
+  return ticket;
 }
 
 export async function getTicketByToken(token) {

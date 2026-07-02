@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { callNextTicket } from '../api/operatorApi.js';
+import { callNextTicket, getWaitingTickets } from '../api/operatorApi.js';
 import { getActiveEvent, getEventFaculties } from '../api/publicApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 import { OperatorCallPanel } from '../components/OperatorCallPanel.jsx';
@@ -8,6 +8,7 @@ export function OperatorQueuePage() {
   const [event, setEvent] = useState(null);
   const [faculties, setFaculties] = useState([]);
   const [selectedFacultyId, setSelectedFacultyId] = useState('');
+  const [waitingTickets, setWaitingTickets] = useState([]);
   const [calledTicket, setCalledTicket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,7 +25,14 @@ export function OperatorQueuePage() {
 
         setEvent(activeEvent);
         setFaculties(eventFaculties);
-        setSelectedFacultyId(eventFaculties[0]?.id || '');
+
+        const firstFacultyId = eventFaculties[0]?.id || '';
+        setSelectedFacultyId(firstFacultyId);
+
+        if (firstFacultyId) {
+          const tickets = await getWaitingTickets(activeEvent.id, firstFacultyId);
+          setWaitingTickets(tickets);
+        }
       } catch (loadError) {
         setError(loadError.message);
       } finally {
@@ -34,6 +42,25 @@ export function OperatorQueuePage() {
 
     loadOperatorData();
   }, []);
+
+  async function handleChangeFaculty(facultyId) {
+    setSelectedFacultyId(facultyId);
+    setCalledTicket(null);
+
+    if (!event?.id || !facultyId) {
+      setWaitingTickets([]);
+      return;
+    }
+
+    try {
+      setError('');
+      const tickets = await getWaitingTickets(event.id, facultyId);
+      setWaitingTickets(tickets);
+    } catch (loadError) {
+      setWaitingTickets([]);
+      setError(loadError.message);
+    }
+  }
 
   async function handleCallNext(formEvent) {
     formEvent.preventDefault();
@@ -47,7 +74,10 @@ export function OperatorQueuePage() {
       setError('');
 
       const ticket = await callNextTicket(event.id, selectedFacultyId);
+      const tickets = await getWaitingTickets(event.id, selectedFacultyId);
+
       setCalledTicket(ticket);
+      setWaitingTickets(tickets);
     } catch (callError) {
       setCalledTicket(null);
       setError(callError.message);
@@ -85,8 +115,9 @@ export function OperatorQueuePage() {
           faculties={faculties}
           isSubmitting={isSubmitting}
           onCallNext={handleCallNext}
-          onChangeFaculty={setSelectedFacultyId}
+          onChangeFaculty={handleChangeFaculty}
           selectedFacultyId={selectedFacultyId}
+          waitingTickets={waitingTickets}
         />
       </div>
     </main>

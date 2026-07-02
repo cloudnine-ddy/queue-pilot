@@ -1,4 +1,16 @@
-import { callNextTicket } from './operators.service.js';
+import { callNextTicket, getWaitingTickets } from './operators.service.js';
+
+export async function getWaitingTicketsHandler(req, res, next) {
+  try {
+    const { eventId, facultyId } = req.params;
+
+    const tickets = await getWaitingTickets(eventId, facultyId);
+
+    return res.json({ tickets });
+  } catch (error) {
+    return next(error);
+  }
+}
 
 export async function callNextTicketHandler(req, res, next) {
   try {

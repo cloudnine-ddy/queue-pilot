@@ -5,6 +5,7 @@ export function OperatorCallPanel({
   onCallNext,
   onChangeFaculty,
   selectedFacultyId,
+  waitingTickets,
 }) {
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -43,6 +44,33 @@ export function OperatorCallPanel({
           <p className="mt-2 text-sm text-emerald-900">{calledTicket.faculty.name}</p>
         </div>
       )}
+
+      <div className="mt-6 border-t border-slate-200 pt-5">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-base font-semibold text-slate-950">Waiting queue</h2>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+            {waitingTickets.length} waiting
+          </span>
+        </div>
+
+        {waitingTickets.length > 0 ? (
+          <ol className="mt-4 divide-y divide-slate-200 rounded-md border border-slate-200">
+            {waitingTickets.map((ticket) => (
+              <li
+                className="flex items-center justify-between gap-4 px-4 py-3"
+                key={ticket.id}
+              >
+                <span className="font-semibold text-slate-950">{ticket.ticketNumber}</span>
+                <span className="text-sm text-slate-500">{ticket.status}</span>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p className="mt-4 rounded-md bg-slate-50 px-4 py-3 text-sm text-slate-600">
+            No waiting tickets.
+          </p>
+        )}
+      </div>
     </section>
   );
 }

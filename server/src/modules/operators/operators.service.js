@@ -1,6 +1,6 @@
 import { prisma } from '../../db/prisma.js';
 
-export async function callNextTicket(eventId, facultyId) {
+async function getActiveEventFaculty(eventId, facultyId) {
   const eventFaculty = await prisma.eventFaculty.findUnique({
     where: {
       eventId_facultyId: {
@@ -25,6 +25,34 @@ export async function callNextTicket(eventId, facultyId) {
     error.statusCode = 400;
     throw error;
   }
+
+  return eventFaculty;
+}
+
+export async function getWaitingTickets(eventId, facultyId) {
+  await getActiveEventFaculty(eventId, facultyId);
+
+  return prisma.queueTicket.findMany({
+    where: {
+      eventId,
+      facultyId,
+      status: 'WAITING',
+    },
+    orderBy: {
+      createdAt: 'asc',
+    },
+    select: {
+      id: true,
+      ticketNumber: true,
+      sequenceNumber: true,
+      status: true,
+      createdAt: true,
+    },
+  });
+}
+
+export async function callNextTicket(eventId, facultyId) {
+  await getActiveEventFaculty(eventId, facultyId);
 
   const nextTicket = await prisma.queueTicket.findFirst({
     where: {

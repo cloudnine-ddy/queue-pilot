@@ -70,3 +70,64 @@ export async function createTicket(eventId, facultyId) {
     },
   });
 }
+
+export async function getTicketByToken(token) {
+  const ticket = await prisma.queueTicket.findUnique({
+    where: { token },
+    select: {
+      id: true,
+      eventId: true,
+      facultyId: true,
+      ticketNumber: true,
+      sequenceNumber: true,
+      token: true,
+      status: true,
+      createdAt: true,
+      calledAt: true,
+      faculty: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+      event: {
+        select: {
+          id: true,
+          name: true,
+          status: true,
+        },
+      },
+    },
+  });
+
+  if (!ticket) {
+    const error = new Error('Ticket not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const peopleAhead = await prisma.queueTicket.count({
+    where: {
+      eventId: ticket.eventId,
+      facultyId: ticket.facultyId,
+      status: 'WAITING',
+      createdAt: {
+        lt: ticket.createdAt,
+      },
+    },
+  });
+
+  return {
+    id: ticket.id,
+    ticketNumber: ticket.ticketNumber,
+    sequenceNumber: ticket.sequenceNumber,
+    token: ticket.token,
+    status: ticket.status,
+    createdAt: ticket.createdAt,
+    calledAt: ticket.calledAt,
+    peopleAhead,
+    faculty: ticket.faculty,
+    event: ticket.event,
+  };
+}

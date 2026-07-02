@@ -7,6 +7,7 @@ import morgan from 'morgan';
 import { Server } from 'socket.io';
 import { eventsRouter } from './modules/events/events.routes.js';
 import { facultiesRouter } from './modules/faculties/faculties.routes.js';
+import { ticketsRouter } from './modules/tickets/tickets.routes.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -23,10 +24,15 @@ app.get('/health', (_req, res) => {
 
 app.use('/api', eventsRouter);
 app.use('/api', facultiesRouter);
+app.use('/api', ticketsRouter);
 
 app.use((err, _req, res, _next) => {
   console.error(err);
-  res.status(500).json({ message: 'Internal server error.' });
+
+  const statusCode = err.statusCode || 500;
+  const message = err.statusCode ? err.message : 'Internal server error.';
+
+  res.status(statusCode).json({ message });
 });
 
 const server = http.createServer(app);

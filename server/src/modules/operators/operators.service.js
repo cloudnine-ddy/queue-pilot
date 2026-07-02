@@ -103,3 +103,60 @@ export async function callNextTicket(eventId, facultyId) {
     },
   });
 }
+
+async function updateCalledTicketStatus(ticketId, status) {
+  const ticket = await prisma.queueTicket.findUnique({
+    where: { id: ticketId },
+    include: {
+      faculty: true,
+      event: true,
+    },
+  });
+
+  if (!ticket) {
+    const error = new Error('Ticket not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (ticket.status !== 'CALLED') {
+    const error = new Error('Only called tickets can be updated.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return prisma.queueTicket.update({
+    where: { id: ticketId },
+    data: { status },
+    select: {
+      id: true,
+      ticketNumber: true,
+      sequenceNumber: true,
+      status: true,
+      createdAt: true,
+      calledAt: true,
+      faculty: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+        },
+      },
+      event: {
+        select: {
+          id: true,
+          name: true,
+          status: true,
+        },
+      },
+    },
+  });
+}
+
+export async function completeTicket(ticketId) {
+  return updateCalledTicketStatus(ticketId, 'DONE');
+}
+
+export async function skipTicket(ticketId) {
+  return updateCalledTicketStatus(ticketId, 'SKIPPED');
+}

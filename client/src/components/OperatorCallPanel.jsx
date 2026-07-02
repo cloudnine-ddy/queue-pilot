@@ -4,6 +4,8 @@ export function OperatorCallPanel({
   isSubmitting,
   onCallNext,
   onChangeFaculty,
+  onComplete,
+  onSkip,
   selectedFacultyId,
   waitingTickets,
 }) {
@@ -38,10 +40,34 @@ export function OperatorCallPanel({
       {calledTicket && (
         <div className="mt-6 rounded-md bg-emerald-50 p-4">
           <p className="text-sm font-medium text-emerald-800">Now calling</p>
-          <p className="mt-2 text-4xl font-semibold text-emerald-950">
-            {calledTicket.ticketNumber}
-          </p>
+          <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-4xl font-semibold text-emerald-950">{calledTicket.ticketNumber}</p>
+            <span className="w-fit rounded-full bg-white px-3 py-1 text-sm font-medium text-emerald-800">
+              {calledTicket.status}
+            </span>
+          </div>
           <p className="mt-2 text-sm text-emerald-900">{calledTicket.faculty.name}</p>
+
+          {calledTicket.status === 'CALLED' && (
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <button
+                className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                disabled={isSubmitting}
+                onClick={onComplete}
+                type="button"
+              >
+                Done
+              </button>
+              <button
+                className="rounded-md border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:text-slate-400"
+                disabled={isSubmitting}
+                onClick={onSkip}
+                type="button"
+              >
+                Skip
+              </button>
+            </div>
+          )}
         </div>
       )}
 

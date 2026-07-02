@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { callNextTicket, getWaitingTickets } from '../api/operatorApi.js';
+import {
+  callNextTicket,
+  completeTicket,
+  getWaitingTickets,
+  skipTicket,
+} from '../api/operatorApi.js';
 import { getActiveEvent, getEventFaculties } from '../api/publicApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 import { OperatorCallPanel } from '../components/OperatorCallPanel.jsx';
@@ -86,6 +91,42 @@ export function OperatorQueuePage() {
     }
   }
 
+  async function handleCompleteTicket() {
+    if (!calledTicket?.id) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setError('');
+
+      const ticket = await completeTicket(calledTicket.id);
+      setCalledTicket(ticket);
+    } catch (completeError) {
+      setError(completeError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleSkipTicket() {
+    if (!calledTicket?.id) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setError('');
+
+      const ticket = await skipTicket(calledTicket.id);
+      setCalledTicket(ticket);
+    } catch (skipError) {
+      setError(skipError.message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   if (isLoading) {
     return (
       <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
@@ -116,7 +157,9 @@ export function OperatorQueuePage() {
           isSubmitting={isSubmitting}
           onCallNext={handleCallNext}
           onChangeFaculty={handleChangeFaculty}
+          onComplete={handleCompleteTicket}
           selectedFacultyId={selectedFacultyId}
+          onSkip={handleSkipTicket}
           waitingTickets={waitingTickets}
         />
       </div>

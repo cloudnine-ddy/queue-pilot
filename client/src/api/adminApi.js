@@ -13,3 +13,9 @@ export async function getAdminProfile(token) {
 
   return data.admin;
 }
+
+export async function getAdminOverview(token) {
+  return request('/api/admin/overview', {
+    headers: authHeaders(token),
+  });
+}

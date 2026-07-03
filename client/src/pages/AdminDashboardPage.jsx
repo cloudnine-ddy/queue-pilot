@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { getAdminProfile } from '../api/adminApi.js';
-import { getActiveEvent } from '../api/publicApi.js';
+import { getAdminOverview, getAdminProfile } from '../api/adminApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 import { adminSessionKey } from './AdminLoginPage.jsx';
 
@@ -24,7 +23,7 @@ export function AdminDashboardPage() {
   const navigate = useNavigate();
   const [session, setSession] = useState(() => readAdminSession());
   const [admin, setAdmin] = useState(session?.admin || null);
-  const [event, setEvent] = useState(null);
+  const [overview, setOverview] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -38,13 +37,13 @@ export function AdminDashboardPage() {
         setIsLoading(true);
         setError('');
 
-        const [adminProfile, activeEvent] = await Promise.all([
+        const [adminProfile, adminOverview] = await Promise.all([
           getAdminProfile(session.token),
-          getActiveEvent(),
+          getAdminOverview(session.token),
         ]);
 
         setAdmin(adminProfile);
-        setEvent(activeEvent);
+        setOverview(adminOverview);
       } catch (loadError) {
         setError(loadError.message);
       } finally {
@@ -60,6 +59,16 @@ export function AdminDashboardPage() {
     setSession(null);
     navigate('/admin/login');
   }
+
+  const event = overview?.event;
+  const faculties = overview?.faculties || [];
+  const totals = overview?.totals || {
+    waiting: 0,
+    called: 0,
+    done: 0,
+    skipped: 0,
+    total: 0,
+  };
 
   if (!session?.token) {
     return <Navigate replace to="/admin/login" />;
@@ -113,14 +122,74 @@ export function AdminDashboardPage() {
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-            <p className="text-sm font-medium text-slate-500">Next admin tools</p>
+            <p className="text-sm font-medium text-slate-500">Queue total</p>
             <h2 className="mt-2 text-xl font-semibold text-slate-950">
-              Event and operator management
+              {totals.total} tickets
             </h2>
             <p className="mt-2 text-sm text-slate-600">
-              This page is ready for protected admin features.
+              {totals.waiting} waiting, {totals.called} called
             </p>
           </div>
+        </section>
+
+        <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Faculties</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-950">
+                Event queue overview
+              </h2>
+            </div>
+            <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+              {faculties.length} active queues
+            </span>
+          </div>
+
+          {faculties.length > 0 ? (
+            <div className="mt-5 overflow-x-auto">
+              <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-500">
+                    <th className="py-3 pr-4 font-semibold">Faculty</th>
+                    <th className="px-4 py-3 font-semibold">Operator</th>
+                    <th className="px-4 py-3 text-right font-semibold">Waiting</th>
+                    <th className="px-4 py-3 text-right font-semibold">Called</th>
+                    <th className="px-4 py-3 text-right font-semibold">Done</th>
+                    <th className="pl-4 py-3 text-right font-semibold">Skipped</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {faculties.map((faculty) => (
+                    <tr className="border-b border-slate-100 last:border-0" key={faculty.id}>
+                      <td className="py-4 pr-4">
+                        <p className="font-semibold text-slate-950">{faculty.name}</p>
+                        <p className="mt-1 text-xs font-medium text-slate-500">{faculty.code}</p>
+                      </td>
+                      <td className="px-4 py-4 text-slate-700">
+                        {faculty.operator ? faculty.operator.name : 'Unassigned'}
+                      </td>
+                      <td className="px-4 py-4 text-right font-semibold text-slate-950">
+                        {faculty.queue.waiting}
+                      </td>
+                      <td className="px-4 py-4 text-right text-slate-700">
+                        {faculty.queue.called}
+                      </td>
+                      <td className="px-4 py-4 text-right text-slate-700">
+                        {faculty.queue.done}
+                      </td>
+                      <td className="pl-4 py-4 text-right text-slate-700">
+                        {faculty.queue.skipped}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className="mt-5 rounded-md bg-slate-50 px-4 py-3 text-sm text-slate-600">
+              No faculties are assigned to the active event.
+            </p>
+          )}
         </section>
       </div>
     </main>

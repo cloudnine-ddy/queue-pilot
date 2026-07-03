@@ -62,10 +62,14 @@ async function main() {
   for (const faculty of faculties) {
     const seededFaculty = await prisma.faculty.upsert({
       where: { code: faculty.code },
-      update: { name: faculty.name },
+      update: {
+        name: faculty.name,
+        isActive: true,
+      },
       create: {
         code: faculty.code,
         name: faculty.name,
+        isActive: true,
       },
     });
 

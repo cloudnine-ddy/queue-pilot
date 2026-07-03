@@ -3,11 +3,14 @@ import { requireAdminAuth } from '../../middleware/adminAuth.js';
 import {
   createActiveEventHandler,
   createFacultyHandler,
+  createOperatorHandler,
   endEventHandler,
   getAdminFacultiesHandler,
+  getAdminOperatorsHandler,
   getAdminOverviewHandler,
   getAdminProfileHandler,
   updateFacultyHandler,
+  updateOperatorHandler,
 } from './admin.controller.js';
 
 export const adminRouter = Router();
@@ -19,5 +22,8 @@ adminRouter.get('/admin/overview', getAdminOverviewHandler);
 adminRouter.get('/admin/faculties', getAdminFacultiesHandler);
 adminRouter.post('/admin/faculties', createFacultyHandler);
 adminRouter.patch('/admin/faculties/:facultyId', updateFacultyHandler);
+adminRouter.get('/admin/operators', getAdminOperatorsHandler);
+adminRouter.post('/admin/operators', createOperatorHandler);
+adminRouter.patch('/admin/operators/:operatorId', updateOperatorHandler);
 adminRouter.post('/admin/events', createActiveEventHandler);
 adminRouter.post('/admin/events/:eventId/end', endEventHandler);

@@ -1,11 +1,14 @@
 import {
   createActiveEvent,
   createFaculty,
+  createOperator,
   endEvent,
   getAdminFaculties,
+  getAdminOperators,
   getAdminOverview,
   getAdminProfile,
   updateFaculty,
+  updateOperator,
 } from './admin.service.js';
 
 export function getAdminProfileHandler(req, res) {
@@ -77,6 +80,37 @@ export async function updateFacultyHandler(req, res, next) {
     const faculty = await updateFaculty(facultyId, req.body);
 
     return res.json({ faculty });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function getAdminOperatorsHandler(_req, res, next) {
+  try {
+    const operators = await getAdminOperators();
+
+    return res.json({ operators });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function createOperatorHandler(req, res, next) {
+  try {
+    const operator = await createOperator(req.body);
+
+    return res.status(201).json({ operator });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function updateOperatorHandler(req, res, next) {
+  try {
+    const { operatorId } = req.params;
+    const operator = await updateOperator(operatorId, req.body);
+
+    return res.json({ operator });
   } catch (error) {
     return next(error);
   }

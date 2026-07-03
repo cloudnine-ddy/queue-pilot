@@ -66,3 +66,31 @@ export async function updateFaculty(facultyId, changes, token) {
 
   return data.faculty;
 }
+
+export async function getAdminOperators(token) {
+  const data = await request('/api/admin/operators', {
+    headers: authHeaders(token),
+  });
+
+  return data.operators;
+}
+
+export async function createOperator({ name, email, password, facultyId }, token) {
+  const data = await request('/api/admin/operators', {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: { name, email, password, facultyId },
+  });
+
+  return data.operator;
+}
+
+export async function updateOperator(operatorId, changes, token) {
+  const data = await request(`/api/admin/operators/${operatorId}`, {
+    method: 'PATCH',
+    headers: authHeaders(token),
+    body: changes,
+  });
+
+  return data.operator;
+}

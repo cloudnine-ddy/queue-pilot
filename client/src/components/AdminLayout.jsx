@@ -11,6 +11,7 @@ const navItems = [
   { label: 'Dashboard', to: '/admin' },
   { label: 'Events', to: '/admin/events' },
   { label: 'Faculties', to: '/admin/faculties' },
+  { label: 'Operators', to: '/admin/operators' },
 ];
 
 export function AdminLayout() {

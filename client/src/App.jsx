@@ -4,6 +4,7 @@ import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
 import { AdminEventsPage } from './pages/AdminEventsPage.jsx';
 import { AdminFacultiesPage } from './pages/AdminFacultiesPage.jsx';
 import { AdminLoginPage } from './pages/AdminLoginPage.jsx';
+import { AdminOperatorsPage } from './pages/AdminOperatorsPage.jsx';
 import { PublicQueuePage } from './pages/PublicQueuePage.jsx';
 import { OperatorLoginPage } from './pages/OperatorLoginPage.jsx';
 import { OperatorQueuePage } from './pages/OperatorQueuePage.jsx';
@@ -35,6 +36,7 @@ function App() {
           <Route index element={<AdminDashboardPage />} />
           <Route element={<AdminEventsPage />} path="events" />
           <Route element={<AdminFacultiesPage />} path="faculties" />
+          <Route element={<AdminOperatorsPage />} path="operators" />
         </Route>
         <Route element={<PublicQueuePage />} path="/" />
         <Route element={<OperatorLoginPage />} path="/operator/login" />

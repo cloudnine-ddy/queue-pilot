@@ -1,3 +1,4 @@
+import bcrypt from 'bcryptjs';
 import { prisma } from '../../db/prisma.js';
 
 export function getAdminProfile(admin) {
@@ -125,6 +126,16 @@ function toAdminFaculty(faculty) {
   };
 }
 
+function toAdminOperator(operator) {
+  return {
+    id: operator.id,
+    name: operator.name,
+    email: operator.email,
+    faculty: operator.faculty,
+    createdAt: operator.createdAt,
+  };
+}
+
 export async function getAdminFaculties() {
   const faculties = await prisma.faculty.findMany({
     include: {
@@ -233,6 +244,153 @@ export async function updateFaculty(facultyId, { name, code, isActive }) {
       const notFoundError = new Error('Faculty not found.');
       notFoundError.statusCode = 404;
       throw notFoundError;
+    }
+
+    throw error;
+  }
+}
+
+export async function getAdminOperators() {
+  const operators = await prisma.operator.findMany({
+    include: {
+      faculty: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          isActive: true,
+        },
+      },
+    },
+    orderBy: {
+      name: 'asc',
+    },
+  });
+
+  return operators.map(toAdminOperator);
+}
+
+export async function createOperator({ name, email, password, facultyId }) {
+  const trimmedName = name?.trim();
+  const trimmedEmail = email?.trim().toLowerCase();
+
+  if (!trimmedName || !trimmedEmail || !password || !facultyId) {
+    const error = new Error('Operator name, email, password, and faculty are required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  try {
+    const operator = await prisma.operator.create({
+      data: {
+        name: trimmedName,
+        email: trimmedEmail,
+        passwordHash,
+        facultyId,
+      },
+      include: {
+        faculty: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            isActive: true,
+          },
+        },
+      },
+    });
+
+    return toAdminOperator(operator);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      const conflictError = new Error('Operator email or faculty is already assigned.');
+      conflictError.statusCode = 409;
+      throw conflictError;
+    }
+
+    if (error.code === 'P2003') {
+      const invalidFacultyError = new Error('Faculty not found.');
+      invalidFacultyError.statusCode = 404;
+      throw invalidFacultyError;
+    }
+
+    throw error;
+  }
+}
+
+export async function updateOperator(operatorId, { name, email, facultyId }) {
+  const data = {};
+
+  if (name !== undefined) {
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      const error = new Error('Operator name cannot be empty.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    data.name = trimmedName;
+  }
+
+  if (email !== undefined) {
+    const trimmedEmail = email.trim().toLowerCase();
+
+    if (!trimmedEmail) {
+      const error = new Error('Operator email cannot be empty.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    data.email = trimmedEmail;
+  }
+
+  if (facultyId !== undefined) {
+    data.facultyId = facultyId;
+  }
+
+  if (Object.keys(data).length === 0) {
+    const error = new Error('No operator changes provided.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  try {
+    const operator = await prisma.operator.update({
+      where: { id: operatorId },
+      data,
+      include: {
+        faculty: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            isActive: true,
+          },
+        },
+      },
+    });
+
+    return toAdminOperator(operator);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      const notFoundError = new Error('Operator not found.');
+      notFoundError.statusCode = 404;
+      throw notFoundError;
+    }
+
+    if (error.code === 'P2002') {
+      const conflictError = new Error('Operator email or faculty is already assigned.');
+      conflictError.statusCode = 409;
+      throw conflictError;
+    }
+
+    if (error.code === 'P2003') {
+      const invalidFacultyError = new Error('Faculty not found.');
+      invalidFacultyError.statusCode = 404;
+      throw invalidFacultyError;
     }
 
     throw error;

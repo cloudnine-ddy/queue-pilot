@@ -1,8 +1,11 @@
 import {
   createActiveEvent,
+  createFaculty,
   endEvent,
+  getAdminFaculties,
   getAdminOverview,
   getAdminProfile,
+  updateFaculty,
 } from './admin.service.js';
 
 export function getAdminProfileHandler(req, res) {
@@ -43,6 +46,37 @@ export async function createActiveEventHandler(req, res, next) {
     const event = await createActiveEvent(name);
 
     return res.status(201).json({ event });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function getAdminFacultiesHandler(_req, res, next) {
+  try {
+    const faculties = await getAdminFaculties();
+
+    return res.json({ faculties });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function createFacultyHandler(req, res, next) {
+  try {
+    const faculty = await createFaculty(req.body);
+
+    return res.status(201).json({ faculty });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function updateFacultyHandler(req, res, next) {
+  try {
+    const { facultyId } = req.params;
+    const faculty = await updateFaculty(facultyId, req.body);
+
+    return res.json({ faculty });
   } catch (error) {
     return next(error);
   }

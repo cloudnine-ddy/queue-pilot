@@ -38,3 +38,31 @@ export async function createEvent(name, token) {
 
   return data.event;
 }
+
+export async function getAdminFaculties(token) {
+  const data = await request('/api/admin/faculties', {
+    headers: authHeaders(token),
+  });
+
+  return data.faculties;
+}
+
+export async function createFaculty({ name, code }, token) {
+  const data = await request('/api/admin/faculties', {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: { name, code },
+  });
+
+  return data.faculty;
+}
+
+export async function updateFaculty(facultyId, changes, token) {
+  const data = await request(`/api/admin/faculties/${facultyId}`, {
+    method: 'PATCH',
+    headers: authHeaders(token),
+    body: changes,
+  });
+
+  return data.faculty;
+}

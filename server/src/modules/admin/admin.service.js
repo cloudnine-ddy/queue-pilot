@@ -91,6 +91,7 @@ export async function getAdminOverview() {
       id: eventFaculty.faculty.id,
       name: eventFaculty.faculty.name,
       code: eventFaculty.faculty.code,
+      isActive: eventFaculty.faculty.isActive,
       operator: eventFaculty.faculty.operators[0] || null,
       queue: counts,
     };
@@ -107,6 +108,130 @@ export async function getAdminOverview() {
     faculties,
     totals,
   };
+}
+
+function toAdminFaculty(faculty) {
+  return {
+    id: faculty.id,
+    name: faculty.name,
+    code: faculty.code,
+    isActive: faculty.isActive,
+    operator: faculty.operators?.[0] || null,
+  };
+}
+
+export async function getAdminFaculties() {
+  const faculties = await prisma.faculty.findMany({
+    include: {
+      operators: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+    orderBy: [
+      { isActive: 'desc' },
+      { name: 'asc' },
+    ],
+  });
+
+  return faculties.map(toAdminFaculty);
+}
+
+export async function createFaculty({ name, code }) {
+  const trimmedName = name?.trim();
+  const trimmedCode = code?.trim().toUpperCase();
+
+  if (!trimmedName || !trimmedCode) {
+    const error = new Error('Faculty name and code are required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const faculty = await prisma.faculty.create({
+    data: {
+      name: trimmedName,
+      code: trimmedCode,
+      isActive: true,
+    },
+    include: {
+      operators: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
+
+  return toAdminFaculty(faculty);
+}
+
+export async function updateFaculty(facultyId, { name, code, isActive }) {
+  const data = {};
+
+  if (name !== undefined) {
+    const trimmedName = name.trim();
+
+    if (!trimmedName) {
+      const error = new Error('Faculty name cannot be empty.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    data.name = trimmedName;
+  }
+
+  if (code !== undefined) {
+    const trimmedCode = code.trim().toUpperCase();
+
+    if (!trimmedCode) {
+      const error = new Error('Faculty code cannot be empty.');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    data.code = trimmedCode;
+  }
+
+  if (isActive !== undefined) {
+    data.isActive = Boolean(isActive);
+  }
+
+  if (Object.keys(data).length === 0) {
+    const error = new Error('No faculty changes provided.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  try {
+    const faculty = await prisma.faculty.update({
+      where: { id: facultyId },
+      data,
+      include: {
+        operators: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return toAdminFaculty(faculty);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      const notFoundError = new Error('Faculty not found.');
+      notFoundError.statusCode = 404;
+      throw notFoundError;
+    }
+
+    throw error;
+  }
 }
 
 export async function endEvent(eventId) {

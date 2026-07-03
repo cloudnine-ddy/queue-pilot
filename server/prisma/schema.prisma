@@ -20,9 +20,10 @@ enum TicketStatus {
 }
 
 model Faculty {
-  id   String  @id @default(cuid())
-  name String
-  code String? @unique
+  id       String  @id @default(cuid())
+  name     String
+  code     String? @unique
+  isActive Boolean @default(true) @map("is_active")
 
   eventFaculties EventFaculty[]
   operators      Operator[]

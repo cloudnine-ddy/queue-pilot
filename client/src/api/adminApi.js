@@ -19,3 +19,12 @@ export async function getAdminOverview(token) {
     headers: authHeaders(token),
   });
 }
+
+export async function endEvent(eventId, token) {
+  const data = await request(`/api/admin/events/${eventId}/end`, {
+    method: 'POST',
+    headers: authHeaders(token),
+  });
+
+  return data.event;
+}

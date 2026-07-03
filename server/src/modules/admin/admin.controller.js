@@ -1,4 +1,8 @@
-import { getAdminOverview, getAdminProfile } from './admin.service.js';
+import {
+  endEvent,
+  getAdminOverview,
+  getAdminProfile,
+} from './admin.service.js';
 
 export function getAdminProfileHandler(req, res) {
   return res.json({
@@ -11,6 +15,17 @@ export async function getAdminOverviewHandler(_req, res, next) {
     const overview = await getAdminOverview();
 
     return res.json(overview);
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function endEventHandler(req, res, next) {
+  try {
+    const { eventId } = req.params;
+    const event = await endEvent(eventId);
+
+    return res.json({ event });
   } catch (error) {
     return next(error);
   }

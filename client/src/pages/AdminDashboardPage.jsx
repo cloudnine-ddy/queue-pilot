@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { getAdminOverview, getAdminProfile } from '../api/adminApi.js';
+import {
+  endEvent,
+  getAdminOverview,
+  getAdminProfile,
+} from '../api/adminApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 import { adminSessionKey } from './AdminLoginPage.jsx';
 
@@ -25,6 +29,7 @@ export function AdminDashboardPage() {
   const [admin, setAdmin] = useState(session?.admin || null);
   const [overview, setOverview] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEndingEvent, setIsEndingEvent] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -58,6 +63,31 @@ export function AdminDashboardPage() {
     localStorage.removeItem(adminSessionKey);
     setSession(null);
     navigate('/admin/login');
+  }
+
+  async function handleEndEvent() {
+    if (!event?.id || !session?.token) {
+      return;
+    }
+
+    const confirmed = window.confirm(`End ${event.name}?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setIsEndingEvent(true);
+      setError('');
+
+      await endEvent(event.id, session.token);
+      const adminOverview = await getAdminOverview(session.token);
+      setOverview(adminOverview);
+    } catch (endError) {
+      setError(endError.message);
+    } finally {
+      setIsEndingEvent(false);
+    }
   }
 
   const event = overview?.event;
@@ -116,9 +146,19 @@ export function AdminDashboardPage() {
             <h2 className="mt-2 text-xl font-semibold text-slate-950">
               {event?.name || 'No active event'}
             </h2>
-            <p className="mt-2 text-sm text-slate-600">
-              {event?.status || 'Unavailable'}
-            </p>
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-slate-600">
+                {event?.status || 'Unavailable'}
+              </p>
+              <button
+                className="w-fit rounded-md border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:border-slate-200 disabled:text-slate-400"
+                disabled={!event?.id || isEndingEvent}
+                onClick={handleEndEvent}
+                type="button"
+              >
+                {isEndingEvent ? 'Ending...' : 'End event'}
+              </button>
+            </div>
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">

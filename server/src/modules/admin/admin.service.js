@@ -108,3 +108,36 @@ export async function getAdminOverview() {
     totals,
   };
 }
+
+export async function endEvent(eventId) {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+  });
+
+  if (!event) {
+    const error = new Error('Event not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (event.status !== 'ACTIVE') {
+    const error = new Error('Only active events can be ended.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  return prisma.event.update({
+    where: { id: eventId },
+    data: {
+      status: 'ENDED',
+      endAt: new Date(),
+    },
+    select: {
+      id: true,
+      name: true,
+      status: true,
+      startAt: true,
+      endAt: true,
+    },
+  });
+}

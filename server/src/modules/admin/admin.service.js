@@ -467,8 +467,34 @@ export async function endEvent(eventId) {
   });
 }
 
-export async function createActiveEvent(name, facultyIds) {
-  const trimmedName = name.trim();
+export async function getAdminEvents() {
+  const events = await prisma.event.findMany({
+    include: {
+      _count: {
+        select: {
+          eventFaculties: true,
+          queueTickets: true,
+        },
+      },
+    },
+    orderBy: {
+      startAt: 'desc',
+    },
+  });
+
+  return events.map((event) => ({
+    id: event.id,
+    name: event.name,
+    status: event.status,
+    startAt: event.startAt,
+    endAt: event.endAt,
+    facultyCount: event._count.eventFaculties,
+    ticketCount: event._count.queueTickets,
+  }));
+}
+
+export async function createEvent({ facultyIds, name, startAt }) {
+  const trimmedName = name?.trim();
 
   if (!trimmedName) {
     const error = new Error('Event name is required.');
@@ -476,14 +502,11 @@ export async function createActiveEvent(name, facultyIds) {
     throw error;
   }
 
-  const existingActiveEvent = await prisma.event.findFirst({
-    where: { status: 'ACTIVE' },
-    select: { id: true },
-  });
+  const startDate = new Date(startAt);
 
-  if (existingActiveEvent) {
-    const error = new Error('End the active event before creating a new one.');
-    error.statusCode = 409;
+  if (!startAt || Number.isNaN(startDate.getTime())) {
+    const error = new Error('Valid start date is required.');
+    error.statusCode = 400;
     throw error;
   }
 
@@ -512,13 +535,58 @@ export async function createActiveEvent(name, facultyIds) {
   return prisma.event.create({
     data: {
       name: trimmedName,
-      status: 'ACTIVE',
-      startAt: new Date(),
+      status: 'UPCOMING',
+      startAt: startDate,
       eventFaculties: {
         create: faculties.map((faculty) => ({
           facultyId: faculty.id,
         })),
       },
+    },
+    select: {
+      id: true,
+      name: true,
+      status: true,
+      startAt: true,
+      endAt: true,
+    },
+  });
+}
+
+export async function startEvent(eventId) {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+  });
+
+  if (!event) {
+    const error = new Error('Event not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (event.status !== 'UPCOMING') {
+    const error = new Error('Only upcoming events can be started.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const existingActiveEvent = await prisma.event.findFirst({
+    where: { status: 'ACTIVE' },
+    select: { id: true },
+  });
+
+  if (existingActiveEvent) {
+    const error = new Error('End the active event before starting another one.');
+    error.statusCode = 409;
+    throw error;
+  }
+
+  return prisma.event.update({
+    where: { id: eventId },
+    data: {
+      status: 'ACTIVE',
+      startAt: new Date(),
+      endAt: null,
     },
     select: {
       id: true,

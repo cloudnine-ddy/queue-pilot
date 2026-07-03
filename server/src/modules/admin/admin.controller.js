@@ -1,13 +1,15 @@
 import {
-  createActiveEvent,
+  createEvent,
   createFaculty,
   createOperator,
   endEvent,
+  getAdminEvents,
   getAdminFaculties,
   getAdminOperators,
   getAdminOverview,
   getAdminProfile,
   resetOperatorPassword,
+  startEvent,
   updateFaculty,
   updateOperator,
 } from './admin.service.js';
@@ -39,17 +41,32 @@ export async function endEventHandler(req, res, next) {
   }
 }
 
-export async function createActiveEventHandler(req, res, next) {
+export async function getAdminEventsHandler(_req, res, next) {
   try {
-    const { facultyIds, name } = req.body;
+    const events = await getAdminEvents();
 
-    if (!name) {
-      return res.status(400).json({ message: 'Event name is required.' });
-    }
+    return res.json({ events });
+  } catch (error) {
+    return next(error);
+  }
+}
 
-    const event = await createActiveEvent(name, facultyIds);
+export async function createEventHandler(req, res, next) {
+  try {
+    const event = await createEvent(req.body);
 
     return res.status(201).json({ event });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function startEventHandler(req, res, next) {
+  try {
+    const { eventId } = req.params;
+    const event = await startEvent(eventId);
+
+    return res.json({ event });
   } catch (error) {
     return next(error);
   }

@@ -29,14 +29,31 @@ export async function endEvent(eventId, token) {
   return data.event;
 }
 
-export async function createEvent(name, facultyIds, token) {
-  const data = await request('/api/admin/events', {
+export async function startEvent(eventId, token) {
+  const data = await request(`/api/admin/events/${eventId}/start`, {
     method: 'POST',
     headers: authHeaders(token),
-    body: { name, facultyIds },
   });
 
   return data.event;
+}
+
+export async function createEvent({ facultyIds, name, startAt }, token) {
+  const data = await request('/api/admin/events', {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: { facultyIds, name, startAt },
+  });
+
+  return data.event;
+}
+
+export async function getAdminEvents(token) {
+  const data = await request('/api/admin/events', {
+    headers: authHeaders(token),
+  });
+
+  return data.events;
 }
 
 export async function getAdminFaculties(token) {

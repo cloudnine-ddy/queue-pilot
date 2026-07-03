@@ -4,6 +4,7 @@ import {
   createOperator,
   endEvent,
   getAdminEvents,
+  getAdminEventDetail,
   getAdminFaculties,
   getAdminOperators,
   getAdminOverview,
@@ -46,6 +47,17 @@ export async function getAdminEventsHandler(_req, res, next) {
     const events = await getAdminEvents();
 
     return res.json({ events });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function getAdminEventDetailHandler(req, res, next) {
+  try {
+    const { eventId } = req.params;
+    const detail = await getAdminEventDetail(eventId);
+
+    return res.json(detail);
   } catch (error) {
     return next(error);
   }

@@ -56,6 +56,12 @@ export async function getAdminEvents(token) {
   return data.events;
 }
 
+export async function getAdminEventDetail(eventId, token) {
+  return request(`/api/admin/events/${eventId}/detail`, {
+    headers: authHeaders(token),
+  });
+}
+
 export async function getAdminFaculties(token) {
   const data = await request('/api/admin/faculties', {
     headers: authHeaders(token),

@@ -6,6 +6,7 @@ import {
   createOperatorHandler,
   endEventHandler,
   getAdminEventsHandler,
+  getAdminEventDetailHandler,
   getAdminFacultiesHandler,
   getAdminOperatorsHandler,
   getAdminOverviewHandler,
@@ -23,6 +24,7 @@ adminRouter.use('/admin', requireAdminAuth);
 adminRouter.get('/admin/me', getAdminProfileHandler);
 adminRouter.get('/admin/overview', getAdminOverviewHandler);
 adminRouter.get('/admin/events', getAdminEventsHandler);
+adminRouter.get('/admin/events/:eventId/detail', getAdminEventDetailHandler);
 adminRouter.get('/admin/faculties', getAdminFacultiesHandler);
 adminRouter.post('/admin/faculties', createFacultyHandler);
 adminRouter.patch('/admin/faculties/:facultyId', updateFacultyHandler);

@@ -493,6 +493,117 @@ export async function getAdminEvents() {
   }));
 }
 
+export async function getAdminEventDetail(eventId) {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    include: {
+      eventFaculties: {
+        include: {
+          faculty: {
+            include: {
+              operators: {
+                select: {
+                  id: true,
+                  name: true,
+                  email: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          faculty: {
+            name: 'asc',
+          },
+        },
+      },
+      queueTickets: {
+        include: {
+          faculty: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 100,
+      },
+    },
+  });
+
+  if (!event) {
+    const error = new Error('Event not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const ticketCounts = await prisma.queueTicket.groupBy({
+    by: ['facultyId', 'status'],
+    where: { eventId },
+    _count: {
+      id: true,
+    },
+  });
+
+  const countsByFaculty = new Map();
+
+  for (const ticketCount of ticketCounts) {
+    const counts = countsByFaculty.get(ticketCount.facultyId) || emptyQueueCounts();
+    const statusKey = ticketCount.status.toLowerCase();
+    const count = ticketCount._count.id;
+
+    counts[statusKey] = count;
+    counts.total += count;
+    countsByFaculty.set(ticketCount.facultyId, counts);
+  }
+
+  const totals = emptyQueueCounts();
+
+  const faculties = event.eventFaculties.map((eventFaculty) => {
+    const counts = countsByFaculty.get(eventFaculty.facultyId) || emptyQueueCounts();
+
+    totals.waiting += counts.waiting;
+    totals.called += counts.called;
+    totals.done += counts.done;
+    totals.skipped += counts.skipped;
+    totals.total += counts.total;
+
+    return {
+      id: eventFaculty.faculty.id,
+      name: eventFaculty.faculty.name,
+      code: eventFaculty.faculty.code,
+      isActive: eventFaculty.faculty.isActive,
+      operator: eventFaculty.faculty.operators[0] || null,
+      queue: counts,
+    };
+  });
+
+  return {
+    event: {
+      id: event.id,
+      name: event.name,
+      status: event.status,
+      startAt: event.startAt,
+      endAt: event.endAt,
+    },
+    faculties,
+    tickets: event.queueTickets.map((ticket) => ({
+      id: ticket.id,
+      ticketNumber: ticket.ticketNumber,
+      sequenceNumber: ticket.sequenceNumber,
+      status: ticket.status,
+      createdAt: ticket.createdAt,
+      calledAt: ticket.calledAt,
+      faculty: ticket.faculty,
+    })),
+    totals,
+  };
+}
+
 export async function createEvent({ facultyIds, name, startAt }) {
   const trimmedName = name?.trim();
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { Link, useOutletContext } from 'react-router-dom';
 import {
   createEvent,
   endEvent,
@@ -245,6 +245,12 @@ export function AdminEventsPage() {
                       {event.ticketCount}
                     </td>
                     <td className="pl-4 py-4 text-right">
+                      <Link
+                        className="mr-2 inline-flex rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                        to={`/admin/events/${event.id}`}
+                      >
+                        View
+                      </Link>
                       {event.status === 'UPCOMING' && (
                         <button
                           className="rounded-md bg-slate-950 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"

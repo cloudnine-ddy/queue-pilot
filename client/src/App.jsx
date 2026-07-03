@@ -2,6 +2,7 @@ import { Link, Route, Routes, useLocation } from 'react-router-dom';
 import { AdminLayout } from './components/AdminLayout.jsx';
 import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
 import { AdminEventsPage } from './pages/AdminEventsPage.jsx';
+import { AdminEventDetailPage } from './pages/AdminEventDetailPage.jsx';
 import { AdminFacultiesPage } from './pages/AdminFacultiesPage.jsx';
 import { AdminLoginPage } from './pages/AdminLoginPage.jsx';
 import { AdminOperatorsPage } from './pages/AdminOperatorsPage.jsx';
@@ -35,6 +36,7 @@ function App() {
         <Route element={<AdminLayout />} path="/admin">
           <Route index element={<AdminDashboardPage />} />
           <Route element={<AdminEventsPage />} path="events" />
+          <Route element={<AdminEventDetailPage />} path="events/:eventId" />
           <Route element={<AdminFacultiesPage />} path="faculties" />
           <Route element={<AdminOperatorsPage />} path="operators" />
         </Route>

@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import {
   createEvent,
   endEvent,
+  getAdminFaculties,
   getAdminOverview,
 } from '../api/adminApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
@@ -10,7 +11,9 @@ import { AlertMessage } from '../components/AlertMessage.jsx';
 export function AdminEventsPage() {
   const { session } = useOutletContext();
   const [overview, setOverview] = useState(null);
+  const [faculties, setFaculties] = useState([]);
   const [eventName, setEventName] = useState('');
+  const [selectedFacultyIds, setSelectedFacultyIds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [isEndingEvent, setIsEndingEvent] = useState(false);
@@ -21,12 +24,20 @@ export function AdminEventsPage() {
     setOverview(adminOverview);
   }
 
+  async function loadFaculties() {
+    const facultyList = await getAdminFaculties(session.token);
+    const activeFaculties = facultyList.filter((faculty) => faculty.isActive);
+
+    setFaculties(activeFaculties);
+    setSelectedFacultyIds(activeFaculties.map((faculty) => faculty.id));
+  }
+
   useEffect(() => {
     async function loadEventsPage() {
       try {
         setIsLoading(true);
         setError('');
-        await loadOverview();
+        await Promise.all([loadOverview(), loadFaculties()]);
       } catch (loadError) {
         setError(loadError.message);
       } finally {
@@ -66,7 +77,7 @@ export function AdminEventsPage() {
     try {
       setIsCreatingEvent(true);
       setError('');
-      await createEvent(eventName, session.token);
+      await createEvent(eventName, selectedFacultyIds, session.token);
       setEventName('');
       await loadOverview();
     } catch (createError) {
@@ -76,8 +87,16 @@ export function AdminEventsPage() {
     }
   }
 
+  function handleToggleFaculty(facultyId) {
+    setSelectedFacultyIds((currentIds) =>
+      currentIds.includes(facultyId)
+        ? currentIds.filter((id) => id !== facultyId)
+        : [...currentIds, facultyId]
+    );
+  }
+
   const event = overview?.event;
-  const faculties = overview?.faculties || [];
+  const eventFaculties = overview?.faculties || [];
 
   if (isLoading) {
     return <p className="text-sm font-medium text-slate-600">Loading events...</p>;
@@ -135,12 +154,50 @@ export function AdminEventsPage() {
             />
             <button
               className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-              disabled={Boolean(event) || isCreatingEvent || !eventName.trim()}
+              disabled={
+                Boolean(event) ||
+                isCreatingEvent ||
+                !eventName.trim() ||
+                selectedFacultyIds.length === 0
+              }
               type="submit"
             >
               {isCreatingEvent ? 'Creating...' : 'Create event'}
             </button>
           </form>
+
+          <div className="mt-5 border-t border-slate-200 pt-5">
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-sm font-semibold text-slate-700">Faculty queues</p>
+              <span className="text-sm font-medium text-slate-500">
+                {selectedFacultyIds.length} selected
+              </span>
+            </div>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              {faculties.map((faculty) => (
+                <label
+                  className={`flex items-start gap-3 rounded-md border px-3 py-2 text-sm ${
+                    event
+                      ? 'border-slate-200 bg-slate-50 text-slate-400'
+                      : 'border-slate-200 bg-white text-slate-700'
+                  }`}
+                  key={faculty.id}
+                >
+                  <input
+                    checked={selectedFacultyIds.includes(faculty.id)}
+                    className="mt-1"
+                    disabled={Boolean(event) || isCreatingEvent}
+                    onChange={() => handleToggleFaculty(faculty.id)}
+                    type="checkbox"
+                  />
+                  <span>
+                    <span className="block font-semibold text-slate-950">{faculty.name}</span>
+                    <span className="mt-1 block text-xs text-slate-500">{faculty.code}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
@@ -153,11 +210,11 @@ export function AdminEventsPage() {
             </h2>
           </div>
           <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
-            {faculties.length} selected
+            {eventFaculties.length} selected
           </span>
         </div>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          {faculties.map((faculty) => (
+          {eventFaculties.map((faculty) => (
             <div
               className="rounded-md border border-slate-200 px-4 py-3"
               key={faculty.id}

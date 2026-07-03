@@ -37,13 +37,13 @@ export async function endEventHandler(req, res, next) {
 
 export async function createActiveEventHandler(req, res, next) {
   try {
-    const { name } = req.body;
+    const { facultyIds, name } = req.body;
 
     if (!name) {
       return res.status(400).json({ message: 'Event name is required.' });
     }
 
-    const event = await createActiveEvent(name);
+    const event = await createActiveEvent(name, facultyIds);
 
     return res.status(201).json({ event });
   } catch (error) {

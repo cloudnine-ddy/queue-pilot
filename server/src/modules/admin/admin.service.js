@@ -267,7 +267,7 @@ export async function endEvent(eventId) {
   });
 }
 
-export async function createActiveEvent(name) {
+export async function createActiveEvent(name, facultyIds) {
   const trimmedName = name.trim();
 
   if (!trimmedName) {
@@ -287,9 +287,27 @@ export async function createActiveEvent(name) {
     throw error;
   }
 
+  const uniqueFacultyIds = [...new Set(facultyIds || [])];
+
+  if (uniqueFacultyIds.length === 0) {
+    const error = new Error('Select at least one active faculty.');
+    error.statusCode = 400;
+    throw error;
+  }
+
   const faculties = await prisma.faculty.findMany({
+    where: {
+      id: { in: uniqueFacultyIds },
+      isActive: true,
+    },
     select: { id: true },
   });
+
+  if (faculties.length !== uniqueFacultyIds.length) {
+    const error = new Error('Selected faculties must be active.');
+    error.statusCode = 400;
+    throw error;
+  }
 
   return prisma.event.create({
     data: {

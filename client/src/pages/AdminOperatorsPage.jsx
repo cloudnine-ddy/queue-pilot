@@ -15,10 +15,12 @@ export function AdminOperatorsPage() {
   const [faculties, setFaculties] = useState([]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('password123');
+  const [password, setPassword] = useState('');
   const [facultyId, setFacultyId] = useState('');
   const [editingOperators, setEditingOperators] = useState({});
   const [passwordResets, setPasswordResets] = useState({});
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [visibleResetPasswords, setVisibleResetPasswords] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -81,7 +83,7 @@ export function AdminOperatorsPage() {
       await createOperator({ name, email, password, facultyId }, session.token);
       setName('');
       setEmail('');
-      setPassword('password123');
+      setPassword('');
       await loadOperatorsPage();
     } catch (createError) {
       setError(createError.message);
@@ -117,6 +119,10 @@ export function AdminOperatorsPage() {
       setPasswordResets((currentResets) => ({
         ...currentResets,
         [operatorId]: '',
+      }));
+      setVisibleResetPasswords((currentVisiblePasswords) => ({
+        ...currentVisiblePasswords,
+        [operatorId]: false,
       }));
     } catch (resetError) {
       setError(resetError.message);
@@ -166,13 +172,23 @@ export function AdminOperatorsPage() {
             type="email"
             value={email}
           />
-          <input
-            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
-            onChange={(event) => setPassword(event.target.value)}
-            placeholder="Password"
-            type="password"
-            value={password}
-          />
+          <div className="flex min-w-0">
+            <input
+              className="min-w-0 flex-1 rounded-l-md border border-r-0 border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Password"
+              type={showCreatePassword ? 'text' : 'password'}
+              value={password}
+            />
+            <button
+              aria-label={showCreatePassword ? 'Hide password' : 'Show password'}
+              className="rounded-r-md border border-slate-300 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              onClick={() => setShowCreatePassword((value) => !value)}
+              type="button"
+            >
+              {showCreatePassword ? '◉' : '◎'}
+            </button>
+          </div>
           <select
             className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
             disabled={unassignedFaculties.length === 0}
@@ -289,9 +305,26 @@ export function AdminOperatorsPage() {
                               }))
                             }
                             placeholder="New password"
-                            type="password"
+                            type={visibleResetPasswords[operator.id] ? 'text' : 'password'}
                             value={passwordResets[operator.id] || ''}
                           />
+                          <button
+                            aria-label={
+                              visibleResetPasswords[operator.id]
+                                ? 'Hide password'
+                                : 'Show password'
+                            }
+                            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                            onClick={() =>
+                              setVisibleResetPasswords((currentVisiblePasswords) => ({
+                                ...currentVisiblePasswords,
+                                [operator.id]: !currentVisiblePasswords[operator.id],
+                              }))
+                            }
+                            type="button"
+                          >
+                            {visibleResetPasswords[operator.id] ? '◉' : '◎'}
+                          </button>
                           <button
                             className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-400"
                             disabled={!passwordResets[operator.id]}

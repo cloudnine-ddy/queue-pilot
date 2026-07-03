@@ -55,6 +55,12 @@ async function getActiveEventFaculty(eventId, facultyId) {
     throw error;
   }
 
+  if (!eventFaculty.faculty.isActive) {
+    const error = new Error('Faculty is not active.');
+    error.statusCode = 400;
+    throw error;
+  }
+
   return eventFaculty;
 }
 
@@ -171,6 +177,12 @@ async function updateCalledTicketStatus(ticketId, operatorFacultyId, status) {
   if (ticket.facultyId !== operatorFacultyId) {
     const error = new Error('You cannot update tickets from another faculty.');
     error.statusCode = 403;
+    throw error;
+  }
+
+  if (!ticket.faculty.isActive) {
+    const error = new Error('Faculty is not active.');
+    error.statusCode = 400;
     throw error;
   }
 

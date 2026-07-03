@@ -30,6 +30,12 @@ export async function createTicket(eventId, facultyId) {
     throw error;
   }
 
+  if (!eventFaculty.faculty.isActive) {
+    const error = new Error('Faculty is not active.');
+    error.statusCode = 400;
+    throw error;
+  }
+
   // here we get the last ticket for this event and faculty, so we can generate the next ticket number
   const lastTicket = await prisma.queueTicket.findFirst({
     where: {

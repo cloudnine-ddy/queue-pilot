@@ -24,6 +24,11 @@ export async function getAdminOverview() {
     orderBy: { startAt: 'desc' },
     include: {
       eventFaculties: {
+        where: {
+          faculty: {
+            isActive: true,
+          },
+        },
         include: {
           faculty: {
             include: {

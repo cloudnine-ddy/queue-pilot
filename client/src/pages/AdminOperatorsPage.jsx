@@ -9,6 +9,34 @@ import {
 } from '../api/adminApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 
+function EyeIcon({ isVisible }) {
+  return (
+    <svg
+      aria-hidden="true"
+      className="h-4 w-4"
+      fill="none"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="2"
+      viewBox="0 0 24 24"
+    >
+      {isVisible ? (
+        <>
+          <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+          <circle cx="12" cy="12" r="3" />
+        </>
+      ) : (
+        <>
+          <path d="m2 2 20 20" />
+          <path d="M6.7 6.7C3.7 8.7 2 12 2 12s3.5 7 10 7c1.9 0 3.6-.6 5-1.4" />
+          <path d="M9.9 4.3C10.6 4.1 11.3 4 12 4c6.5 0 10 8 10 8a16.1 16.1 0 0 1-3.1 4.1" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 export function AdminOperatorsPage() {
   const { session } = useOutletContext();
   const [operators, setOperators] = useState([]);
@@ -18,9 +46,10 @@ export function AdminOperatorsPage() {
   const [password, setPassword] = useState('');
   const [facultyId, setFacultyId] = useState('');
   const [editingOperators, setEditingOperators] = useState({});
-  const [passwordResets, setPasswordResets] = useState({});
   const [showCreatePassword, setShowCreatePassword] = useState(false);
-  const [visibleResetPasswords, setVisibleResetPasswords] = useState({});
+  const [resetOperator, setResetOperator] = useState(null);
+  const [resetPassword, setResetPassword] = useState('');
+  const [showResetPassword, setShowResetPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -84,6 +113,7 @@ export function AdminOperatorsPage() {
       setName('');
       setEmail('');
       setPassword('');
+      setShowCreatePassword(false);
       await loadOperatorsPage();
     } catch (createError) {
       setError(createError.message);
@@ -112,18 +142,29 @@ export function AdminOperatorsPage() {
     }
   }
 
-  async function handleResetPassword(operatorId) {
+  function handleOpenResetPassword(operator) {
+    setResetOperator(operator);
+    setResetPassword('');
+    setShowResetPassword(false);
+  }
+
+  function handleCloseResetPassword() {
+    setResetOperator(null);
+    setResetPassword('');
+    setShowResetPassword(false);
+  }
+
+  async function handleResetPassword(event) {
+    event.preventDefault();
+
+    if (!resetOperator) {
+      return;
+    }
+
     try {
       setError('');
-      await resetOperatorPassword(operatorId, passwordResets[operatorId], session.token);
-      setPasswordResets((currentResets) => ({
-        ...currentResets,
-        [operatorId]: '',
-      }));
-      setVisibleResetPasswords((currentVisiblePasswords) => ({
-        ...currentVisiblePasswords,
-        [operatorId]: false,
-      }));
+      await resetOperatorPassword(resetOperator.id, resetPassword, session.token);
+      handleCloseResetPassword();
     } catch (resetError) {
       setError(resetError.message);
     }
@@ -186,7 +227,7 @@ export function AdminOperatorsPage() {
               onClick={() => setShowCreatePassword((value) => !value)}
               type="button"
             >
-              {showCreatePassword ? '◉' : '◎'}
+              <EyeIcon isVisible={showCreatePassword} />
             </button>
           </div>
           <select
@@ -236,13 +277,13 @@ export function AdminOperatorsPage() {
 
         {operators.length > 0 ? (
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[1080px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[980px] border-collapse text-left text-sm">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500">
                   <th className="py-3 pr-4 font-semibold">Name</th>
                   <th className="px-4 py-3 font-semibold">Email</th>
                   <th className="px-4 py-3 font-semibold">Faculty</th>
-                  <th className="px-4 py-3 font-semibold">Reset password</th>
+                  <th className="px-4 py-3 font-semibold">Security</th>
                   <th className="pl-4 py-3 text-right font-semibold">Action</th>
                 </tr>
               </thead>
@@ -295,45 +336,13 @@ export function AdminOperatorsPage() {
                         </select>
                       </td>
                       <td className="px-4 py-4">
-                        <div className="flex gap-2">
-                          <input
-                            className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
-                            onChange={(event) =>
-                              setPasswordResets((currentResets) => ({
-                                ...currentResets,
-                                [operator.id]: event.target.value,
-                              }))
-                            }
-                            placeholder="New password"
-                            type={visibleResetPasswords[operator.id] ? 'text' : 'password'}
-                            value={passwordResets[operator.id] || ''}
-                          />
-                          <button
-                            aria-label={
-                              visibleResetPasswords[operator.id]
-                                ? 'Hide password'
-                                : 'Show password'
-                            }
-                            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
-                            onClick={() =>
-                              setVisibleResetPasswords((currentVisiblePasswords) => ({
-                                ...currentVisiblePasswords,
-                                [operator.id]: !currentVisiblePasswords[operator.id],
-                              }))
-                            }
-                            type="button"
-                          >
-                            {visibleResetPasswords[operator.id] ? '◉' : '◎'}
-                          </button>
-                          <button
-                            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-400"
-                            disabled={!passwordResets[operator.id]}
-                            onClick={() => handleResetPassword(operator.id)}
-                            type="button"
-                          >
-                            Reset
-                          </button>
-                        </div>
+                        <button
+                          className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                          onClick={() => handleOpenResetPassword(operator)}
+                          type="button"
+                        >
+                          Reset password
+                        </button>
                       </td>
                       <td className="pl-4 py-4 text-right">
                         <button
@@ -356,6 +365,60 @@ export function AdminOperatorsPage() {
           </p>
         )}
       </section>
+
+      {resetOperator && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-5">
+          <section className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-5 shadow-xl">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Reset password</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-950">
+                {resetOperator.name}
+              </h2>
+              <p className="mt-2 text-sm text-slate-600">{resetOperator.email}</p>
+            </div>
+
+            <form className="mt-5" onSubmit={handleResetPassword}>
+              <label className="block text-sm font-medium text-slate-700" htmlFor="reset-password">
+                New password
+              </label>
+              <div className="mt-2 flex">
+                <input
+                  className="min-w-0 flex-1 rounded-l-md border border-r-0 border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                  id="reset-password"
+                  onChange={(event) => setResetPassword(event.target.value)}
+                  type={showResetPassword ? 'text' : 'password'}
+                  value={resetPassword}
+                />
+                <button
+                  aria-label={showResetPassword ? 'Hide password' : 'Show password'}
+                  className="rounded-r-md border border-slate-300 px-3 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                  onClick={() => setShowResetPassword((value) => !value)}
+                  type="button"
+                >
+                  <EyeIcon isVisible={showResetPassword} />
+                </button>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  className="rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                  onClick={handleCloseResetPassword}
+                  type="button"
+                >
+                  Cancel
+                </button>
+                <button
+                  className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                  disabled={!resetPassword}
+                  type="submit"
+                >
+                  Reset password
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      )}
     </>
   );
 }

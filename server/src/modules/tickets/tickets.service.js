@@ -3,6 +3,8 @@ import { prisma } from '../../db/prisma.js';
 import { emitQueueUpdated } from '../realtime/realtime.service.js';
 
 export async function createTicket(eventId, facultyId) {
+
+  // this whole section is to check if the faculty is available for the event and if the event is active
   const eventFaculty = await prisma.eventFaculty.findUnique({
     where: {
       eventId_facultyId: {
@@ -28,6 +30,7 @@ export async function createTicket(eventId, facultyId) {
     throw error;
   }
 
+  // here we get the last ticket for this event and faculty, so we can generate the next ticket number
   const lastTicket = await prisma.queueTicket.findFirst({
     where: {
       eventId,
@@ -46,6 +49,7 @@ export async function createTicket(eventId, facultyId) {
 
   const token = crypto.randomUUID();
 
+  // here we create the ticket in the database
   const ticket = await prisma.queueTicket.create({
     data: {
       eventId,

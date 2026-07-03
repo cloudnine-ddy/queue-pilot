@@ -10,6 +10,7 @@ import { AlertMessage } from '../components/AlertMessage.jsx';
 import { FacultyTicketForm } from '../components/FacultyTicketForm.jsx';
 import { TicketStatusCard } from '../components/TicketStatusCard.jsx';
 
+// ticketTokenKey is the variable name here, in the local storage, 'queuePilot.ticketToken' is the key, which help us to find the value
 const ticketTokenKey = 'queuePilot.ticketToken';
 
 export function PublicQueuePage() {

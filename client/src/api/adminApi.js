@@ -28,3 +28,13 @@ export async function endEvent(eventId, token) {
 
   return data.event;
 }
+
+export async function createEvent(name, token) {
+  const data = await request('/api/admin/events', {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: { name },
+  });
+
+  return data.event;
+}

@@ -1,4 +1,5 @@
 import {
+  createActiveEvent,
   endEvent,
   getAdminOverview,
   getAdminProfile,
@@ -26,6 +27,22 @@ export async function endEventHandler(req, res, next) {
     const event = await endEvent(eventId);
 
     return res.json({ event });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function createActiveEventHandler(req, res, next) {
+  try {
+    const { name } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ message: 'Event name is required.' });
+    }
+
+    const event = await createActiveEvent(name);
+
+    return res.status(201).json({ event });
   } catch (error) {
     return next(error);
   }

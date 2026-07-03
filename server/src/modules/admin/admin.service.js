@@ -141,3 +141,48 @@ export async function endEvent(eventId) {
     },
   });
 }
+
+export async function createActiveEvent(name) {
+  const trimmedName = name.trim();
+
+  if (!trimmedName) {
+    const error = new Error('Event name is required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const existingActiveEvent = await prisma.event.findFirst({
+    where: { status: 'ACTIVE' },
+    select: { id: true },
+  });
+
+  if (existingActiveEvent) {
+    const error = new Error('End the active event before creating a new one.');
+    error.statusCode = 409;
+    throw error;
+  }
+
+  const faculties = await prisma.faculty.findMany({
+    select: { id: true },
+  });
+
+  return prisma.event.create({
+    data: {
+      name: trimmedName,
+      status: 'ACTIVE',
+      startAt: new Date(),
+      eventFaculties: {
+        create: faculties.map((faculty) => ({
+          facultyId: faculty.id,
+        })),
+      },
+    },
+    select: {
+      id: true,
+      name: true,
+      status: true,
+      startAt: true,
+      endAt: true,
+    },
+  });
+}

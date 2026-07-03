@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import {
+  createEvent,
   endEvent,
   getAdminOverview,
   getAdminProfile,
@@ -28,7 +29,9 @@ export function AdminDashboardPage() {
   const [session, setSession] = useState(() => readAdminSession());
   const [admin, setAdmin] = useState(session?.admin || null);
   const [overview, setOverview] = useState(null);
+  const [eventName, setEventName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
   const [isEndingEvent, setIsEndingEvent] = useState(false);
   const [error, setError] = useState('');
 
@@ -87,6 +90,29 @@ export function AdminDashboardPage() {
       setError(endError.message);
     } finally {
       setIsEndingEvent(false);
+    }
+  }
+
+  async function handleCreateEvent(formEvent) {
+    formEvent.preventDefault();
+
+    if (!session?.token) {
+      return;
+    }
+
+    try {
+      setIsCreatingEvent(true);
+      setError('');
+
+      await createEvent(eventName, session.token);
+      setEventName('');
+
+      const adminOverview = await getAdminOverview(session.token);
+      setOverview(adminOverview);
+    } catch (createError) {
+      setError(createError.message);
+    } finally {
+      setIsCreatingEvent(false);
     }
   }
 
@@ -170,6 +196,44 @@ export function AdminDashboardPage() {
               {totals.waiting} waiting, {totals.called} called
             </p>
           </div>
+        </section>
+
+        <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Create event</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-950">
+                Add active event
+              </h2>
+              <p className="mt-2 text-sm text-slate-600">
+                {event
+                  ? 'End the current active event before creating a new one.'
+                  : 'The new event will start immediately and include all faculties.'}
+              </p>
+            </div>
+          </div>
+
+          <form className="mt-5 flex flex-col gap-3 sm:flex-row" onSubmit={handleCreateEvent}>
+            <label className="sr-only" htmlFor="event-name">
+              Event name
+            </label>
+            <input
+              className="min-w-0 flex-1 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 disabled:bg-slate-50 disabled:text-slate-400"
+              disabled={Boolean(event) || isCreatingEvent}
+              id="event-name"
+              onChange={(inputEvent) => setEventName(inputEvent.target.value)}
+              placeholder="Monash Open Day August"
+              type="text"
+              value={eventName}
+            />
+            <button
+              className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              disabled={Boolean(event) || isCreatingEvent || !eventName.trim()}
+              type="submit"
+            >
+              {isCreatingEvent ? 'Creating...' : 'Create event'}
+            </button>
+          </form>
         </section>
 
         <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">

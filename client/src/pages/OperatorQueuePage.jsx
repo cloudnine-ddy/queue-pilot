@@ -1,19 +1,36 @@
 import { useEffect, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import {
   callNextTicket,
   completeTicket,
   getWaitingTickets,
   skipTicket,
 } from '../api/operatorApi.js';
-import { getActiveEvent, getEventFaculties } from '../api/publicApi.js';
+import { getActiveEvent } from '../api/publicApi.js';
 import { socket } from '../api/realtimeClient.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 import { OperatorCallPanel } from '../components/OperatorCallPanel.jsx';
+import { operatorSessionKey } from './OperatorLoginPage.jsx';
+
+function readOperatorSession() {
+  const storedSession = localStorage.getItem(operatorSessionKey);
+
+  if (!storedSession) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(storedSession);
+  } catch {
+    localStorage.removeItem(operatorSessionKey);
+    return null;
+  }
+}
 
 export function OperatorQueuePage() {
+  const navigate = useNavigate();
+  const [session, setSession] = useState(() => readOperatorSession());
   const [event, setEvent] = useState(null);
-  const [faculties, setFaculties] = useState([]);
-  const [selectedFacultyId, setSelectedFacultyId] = useState('');
   const [waitingTickets, setWaitingTickets] = useState([]);
   const [calledTicket, setCalledTicket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -22,23 +39,19 @@ export function OperatorQueuePage() {
 
   useEffect(() => {
     async function loadOperatorData() {
+      if (!session?.token) {
+        return;
+      }
+
       try {
         setIsLoading(true);
         setError('');
 
         const activeEvent = await getActiveEvent();
-        const eventFaculties = await getEventFaculties(activeEvent.id);
+        const tickets = await getWaitingTickets(activeEvent.id, session.token);
 
         setEvent(activeEvent);
-        setFaculties(eventFaculties);
-
-        const firstFacultyId = eventFaculties[0]?.id || '';
-        setSelectedFacultyId(firstFacultyId);
-
-        if (firstFacultyId) {
-          const tickets = await getWaitingTickets(activeEvent.id, firstFacultyId);
-          setWaitingTickets(tickets);
-        }
+        setWaitingTickets(tickets);
       } catch (loadError) {
         setError(loadError.message);
       } finally {
@@ -47,16 +60,16 @@ export function OperatorQueuePage() {
     }
 
     loadOperatorData();
-  }, []);
+  }, [session?.token]);
 
   useEffect(() => {
-    if (!event?.id || !selectedFacultyId) {
+    if (!event?.id || !session?.operator?.faculty?.id || !session?.token) {
       return undefined;
     }
 
     const roomPayload = {
       eventId: event.id,
-      facultyId: selectedFacultyId,
+      facultyId: session.operator.faculty.id,
     };
 
     function joinQueueRoom() {
@@ -64,12 +77,12 @@ export function OperatorQueuePage() {
     }
 
     async function handleQueueUpdated(payload) {
-      if (payload.eventId !== event.id || payload.facultyId !== selectedFacultyId) {
+      if (payload.eventId !== event.id || payload.facultyId !== session.operator.faculty.id) {
         return;
       }
 
       try {
-        const tickets = await getWaitingTickets(event.id, selectedFacultyId);
+        const tickets = await getWaitingTickets(event.id, session.token);
         setWaitingTickets(tickets);
       } catch (socketError) {
         setError(socketError.message);
@@ -91,31 +104,12 @@ export function OperatorQueuePage() {
       socket.off('server:ready', joinQueueRoom);
       socket.off('queue:updated', handleQueueUpdated);
     };
-  }, [event?.id, selectedFacultyId]);
-
-  async function handleChangeFaculty(facultyId) {
-    setSelectedFacultyId(facultyId);
-    setCalledTicket(null);
-
-    if (!event?.id || !facultyId) {
-      setWaitingTickets([]);
-      return;
-    }
-
-    try {
-      setError('');
-      const tickets = await getWaitingTickets(event.id, facultyId);
-      setWaitingTickets(tickets);
-    } catch (loadError) {
-      setWaitingTickets([]);
-      setError(loadError.message);
-    }
-  }
+  }, [event?.id, session?.operator?.faculty?.id, session?.token]);
 
   async function handleCallNext(formEvent) {
     formEvent.preventDefault();
 
-    if (!event?.id || !selectedFacultyId) {
+    if (!event?.id || !session?.token) {
       return;
     }
 
@@ -123,8 +117,8 @@ export function OperatorQueuePage() {
       setIsSubmitting(true);
       setError('');
 
-      const ticket = await callNextTicket(event.id, selectedFacultyId);
-      const tickets = await getWaitingTickets(event.id, selectedFacultyId);
+      const ticket = await callNextTicket(event.id, session.token);
+      const tickets = await getWaitingTickets(event.id, session.token);
 
       setCalledTicket(ticket);
       setWaitingTickets(tickets);
@@ -137,7 +131,7 @@ export function OperatorQueuePage() {
   }
 
   async function handleCompleteTicket() {
-    if (!calledTicket?.id) {
+    if (!calledTicket?.id || !session?.token) {
       return;
     }
 
@@ -145,7 +139,7 @@ export function OperatorQueuePage() {
       setIsSubmitting(true);
       setError('');
 
-      const ticket = await completeTicket(calledTicket.id);
+      const ticket = await completeTicket(calledTicket.id, session.token);
       setCalledTicket(ticket);
     } catch (completeError) {
       setError(completeError.message);
@@ -155,7 +149,7 @@ export function OperatorQueuePage() {
   }
 
   async function handleSkipTicket() {
-    if (!calledTicket?.id) {
+    if (!calledTicket?.id || !session?.token) {
       return;
     }
 
@@ -163,13 +157,23 @@ export function OperatorQueuePage() {
       setIsSubmitting(true);
       setError('');
 
-      const ticket = await skipTicket(calledTicket.id);
+      const ticket = await skipTicket(calledTicket.id, session.token);
       setCalledTicket(ticket);
     } catch (skipError) {
       setError(skipError.message);
     } finally {
       setIsSubmitting(false);
     }
+  }
+
+  function handleSignOut() {
+    localStorage.removeItem(operatorSessionKey);
+    setSession(null);
+    navigate('/operator/login');
+  }
+
+  if (!session?.token) {
+    return <Navigate replace to="/operator/login" />;
   }
 
   if (isLoading) {
@@ -192,18 +196,28 @@ export function OperatorQueuePage() {
           <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
             {event?.name || 'Queue'}
           </h1>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-sm text-slate-600">
+              Signed in as <span className="font-semibold">{session.operator.name}</span>
+            </p>
+            <button
+              className="w-fit rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              onClick={handleSignOut}
+              type="button"
+            >
+              Sign out
+            </button>
+          </div>
         </header>
 
         <AlertMessage message={error} />
 
         <OperatorCallPanel
           calledTicket={calledTicket}
-          faculties={faculties}
+          faculty={session.operator.faculty}
           isSubmitting={isSubmitting}
           onCallNext={handleCallNext}
-          onChangeFaculty={handleChangeFaculty}
           onComplete={handleCompleteTicket}
-          selectedFacultyId={selectedFacultyId}
           onSkip={handleSkipTicket}
           waitingTickets={waitingTickets}
         />

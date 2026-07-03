@@ -4,6 +4,8 @@ import {
   emitTicketUpdated,
 } from '../realtime/realtime.service.js';
 
+// this function is used to convert the ticket object from the database
+// to the format that we want to send to the operator
 function toOperatorTicket(ticket) {
   return {
     id: ticket.id,
@@ -17,9 +19,16 @@ function toOperatorTicket(ticket) {
   };
 }
 
+// notice that this function is not exported, it is only used in this file
+// why? because we are not calling this function through any api url
+// we use it to check if the event and faculty are valid and active before we call the other functions
 async function getActiveEventFaculty(eventId, facultyId) {
   const eventFaculty = await prisma.eventFaculty.findUnique({
     where: {
+      // because in the prisma schema we have a compound unique key for eventId and facultyId
+      // so here we use is to find the record
+      // if we write them separately, it will not work
+      // e.g. if we write where: { eventId, facultyId }, it will not work
       eventId_facultyId: {
         eventId,
         facultyId,
@@ -34,6 +43,9 @@ async function getActiveEventFaculty(eventId, facultyId) {
   if (!eventFaculty) {
     const error = new Error('Faculty is not available for this event.');
     error.statusCode = 404;
+
+    // because this is a service function
+    // we throw the error and let the controller handle it
     throw error;
   }
 
@@ -47,6 +59,7 @@ async function getActiveEventFaculty(eventId, facultyId) {
 }
 
 export async function getWaitingTickets(eventId, facultyId) {
+  // if the event and faculty is valid, only we move on
   await getActiveEventFaculty(eventId, facultyId);
 
   return prisma.queueTicket.findMany({
@@ -68,6 +81,8 @@ export async function getWaitingTickets(eventId, facultyId) {
   });
 }
 
+// this function will update the status of the ticket to CALLED
+// and return the ticket object, so it can be shown in the operator's screen
 export async function callNextTicket(eventId, facultyId) {
   await getActiveEventFaculty(eventId, facultyId);
 
@@ -129,7 +144,10 @@ export async function callNextTicket(eventId, facultyId) {
   return toOperatorTicket(calledTicket);
 }
 
-async function updateCalledTicketStatus(ticketId, status) {
+// this function is not exported also
+// it check if the ticket is in CALLED status, if not, it will throw an error
+// after that, we will update the status of the ticket to the new status, and return the ticket object
+async function updateCalledTicketStatus(ticketId, operatorFacultyId, status) {
   const ticket = await prisma.queueTicket.findUnique({
     where: { id: ticketId },
     include: {
@@ -147,6 +165,12 @@ async function updateCalledTicketStatus(ticketId, status) {
   if (ticket.status !== 'CALLED') {
     const error = new Error('Only called tickets can be updated.');
     error.statusCode = 400;
+    throw error;
+  }
+
+  if (ticket.facultyId !== operatorFacultyId) {
+    const error = new Error('You cannot update tickets from another faculty.');
+    error.statusCode = 403;
     throw error;
   }
 
@@ -186,10 +210,12 @@ async function updateCalledTicketStatus(ticketId, status) {
   return toOperatorTicket(updatedTicket);
 }
 
-export async function completeTicket(ticketId) {
-  return updateCalledTicketStatus(ticketId, 'DONE');
+// here we export the function, and set the status to DONE
+// so once we call this function, the ticket will be marked as DONE
+export async function completeTicket(ticketId, operatorFacultyId) {
+  return updateCalledTicketStatus(ticketId, operatorFacultyId, 'DONE');
 }
 
-export async function skipTicket(ticketId) {
-  return updateCalledTicketStatus(ticketId, 'SKIPPED');
+export async function skipTicket(ticketId, operatorFacultyId) {
+  return updateCalledTicketStatus(ticketId, operatorFacultyId, 'SKIPPED');
 }

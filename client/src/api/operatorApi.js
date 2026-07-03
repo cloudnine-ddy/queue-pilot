@@ -1,29 +1,40 @@
 import { request } from './client.js';
 
-export async function getWaitingTickets(eventId, facultyId) {
-  const data = await request(`/api/operator/events/${eventId}/faculties/${facultyId}/tickets/waiting`);
+function authHeaders(token) {
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+export async function getWaitingTickets(eventId, token) {
+  const data = await request(`/api/operator/events/${eventId}/tickets/waiting`, {
+    headers: authHeaders(token),
+  });
   return data.tickets;
 }
 
-export async function callNextTicket(eventId, facultyId) {
-  const data = await request(`/api/operator/events/${eventId}/faculties/${facultyId}/call-next`, {
+export async function callNextTicket(eventId, token) {
+  const data = await request(`/api/operator/events/${eventId}/call-next`, {
     method: 'POST',
+    headers: authHeaders(token),
   });
 
   return data.ticket;
 }
 
-export async function completeTicket(ticketId) {
+export async function completeTicket(ticketId, token) {
   const data = await request(`/api/operator/tickets/${ticketId}/done`, {
     method: 'POST',
+    headers: authHeaders(token),
   });
 
   return data.ticket;
 }
 
-export async function skipTicket(ticketId) {
+export async function skipTicket(ticketId, token) {
   const data = await request(`/api/operator/tickets/${ticketId}/skip`, {
     method: 'POST',
+    headers: authHeaders(token),
   });
 
   return data.ticket;

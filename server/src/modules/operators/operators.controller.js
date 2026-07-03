@@ -7,7 +7,8 @@ import {
 
 export async function getWaitingTicketsHandler(req, res, next) {
   try {
-    const { eventId, facultyId } = req.params;
+    const { eventId } = req.params;
+    const { facultyId } = req.operator;
 
     const tickets = await getWaitingTickets(eventId, facultyId);
 
@@ -19,7 +20,8 @@ export async function getWaitingTicketsHandler(req, res, next) {
 
 export async function callNextTicketHandler(req, res, next) {
   try {
-    const { eventId, facultyId } = req.params;
+    const { eventId } = req.params;
+    const { facultyId } = req.operator;
 
     const ticket = await callNextTicket(eventId, facultyId);
 
@@ -32,8 +34,9 @@ export async function callNextTicketHandler(req, res, next) {
 export async function completeTicketHandler(req, res, next) {
   try {
     const { ticketId } = req.params;
+    const { facultyId } = req.operator;
 
-    const ticket = await completeTicket(ticketId);
+    const ticket = await completeTicket(ticketId, facultyId);
 
     return res.json({ ticket });
   } catch (error) {
@@ -44,8 +47,9 @@ export async function completeTicketHandler(req, res, next) {
 export async function skipTicketHandler(req, res, next) {
   try {
     const { ticketId } = req.params;
+    const { facultyId } = req.operator;
 
-    const ticket = await skipTicket(ticketId);
+    const ticket = await skipTicket(ticketId, facultyId);
 
     return res.json({ ticket });
   } catch (error) {

@@ -1,5 +1,6 @@
 import { Link, Route, Routes } from 'react-router-dom';
 import { PublicQueuePage } from './pages/PublicQueuePage.jsx';
+import { OperatorLoginPage } from './pages/OperatorLoginPage.jsx';
 import { OperatorQueuePage } from './pages/OperatorQueuePage.jsx';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
       </nav>
       <Routes>
         <Route element={<PublicQueuePage />} path="/" />
+        <Route element={<OperatorLoginPage />} path="/operator/login" />
         <Route element={<OperatorQueuePage />} path="/operator" />
       </Routes>
     </>

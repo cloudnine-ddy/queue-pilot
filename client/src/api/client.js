@@ -1,12 +1,15 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export async function request(path, options = {}) {
+  const { body, ...fetchOptions } = options;
+
   const response = await fetch(`${API_URL}${path}`, {
+    ...fetchOptions,
     headers: {
       'Content-Type': 'application/json',
-      ...options.headers,
+      ...fetchOptions.headers,
     },
-    ...options,
+    body: body ? JSON.stringify(body) : undefined,
   });
 
   const data = await response.json().catch(() => ({}));

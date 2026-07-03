@@ -6,3 +6,10 @@ export async function loginOperator(email, password) {
     body: { email, password },
   });
 }
+
+export async function loginAdmin(email, password) {
+  return request('/api/auth/admin/login', {
+    method: 'POST',
+    body: { email, password },
+  });
+}

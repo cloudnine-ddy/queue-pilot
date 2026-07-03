@@ -52,3 +52,43 @@ export async function loginOperator(email, password) {
     },
   };
 }
+
+export async function loginAdmin(email, password) {
+  const admin = await prisma.admin.findUnique({
+    where: { email },
+  });
+
+  if (!admin) {
+    const error = new Error('Invalid email or password.');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const isPasswordValid = await bcrypt.compare(password, admin.passwordHash);
+
+  if (!isPasswordValid) {
+    const error = new Error('Invalid email or password.');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  const token = jwt.sign(
+    {
+      role: 'admin',
+    },
+    process.env.JWT_SECRET,
+    {
+      subject: admin.id,
+      expiresIn: '8h',
+    }
+  );
+
+  return {
+    token,
+    admin: {
+      id: admin.id,
+      name: admin.name,
+      email: admin.email,
+    },
+  };
+}

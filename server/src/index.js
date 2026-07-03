@@ -5,6 +5,7 @@ import express from 'express';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { Server } from 'socket.io';
+import { adminRouter } from './modules/admin/admin.routes.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { eventsRouter } from './modules/events/events.routes.js';
 import { facultiesRouter } from './modules/faculties/faculties.routes.js';
@@ -28,6 +29,7 @@ app.get('/health', (_req, res) => {
 app.use('/api', eventsRouter);
 app.use('/api', facultiesRouter);
 app.use('/api', authRouter);
+app.use('/api', adminRouter);
 app.use('/api', operatorsRouter);
 app.use('/api', ticketsRouter);
 

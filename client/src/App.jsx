@@ -1,4 +1,6 @@
 import { Link, Route, Routes } from 'react-router-dom';
+import { AdminDashboardPage } from './pages/AdminDashboardPage.jsx';
+import { AdminLoginPage } from './pages/AdminLoginPage.jsx';
 import { PublicQueuePage } from './pages/PublicQueuePage.jsx';
 import { OperatorLoginPage } from './pages/OperatorLoginPage.jsx';
 import { OperatorQueuePage } from './pages/OperatorQueuePage.jsx';
@@ -14,9 +16,14 @@ function App() {
           <Link className="text-slate-700 hover:text-slate-950" to="/operator">
             Operator
           </Link>
+          <Link className="text-slate-700 hover:text-slate-950" to="/admin">
+            Admin
+          </Link>
         </div>
       </nav>
       <Routes>
+        <Route element={<AdminDashboardPage />} path="/admin" />
+        <Route element={<AdminLoginPage />} path="/admin/login" />
         <Route element={<PublicQueuePage />} path="/" />
         <Route element={<OperatorLoginPage />} path="/operator/login" />
         <Route element={<OperatorQueuePage />} path="/operator" />

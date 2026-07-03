@@ -1,1 +1,7 @@
-// Admin business logic will live here.
+export function getAdminProfile(admin) {
+  return {
+    id: admin.id,
+    name: admin.name,
+    email: admin.email,
+  };
+}

@@ -397,6 +397,43 @@ export async function updateOperator(operatorId, { name, email, facultyId }) {
   }
 }
 
+export async function resetOperatorPassword(operatorId, password) {
+  if (!password) {
+    const error = new Error('Password is required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  try {
+    const operator = await prisma.operator.update({
+      where: { id: operatorId },
+      data: { passwordHash },
+      include: {
+        faculty: {
+          select: {
+            id: true,
+            name: true,
+            code: true,
+            isActive: true,
+          },
+        },
+      },
+    });
+
+    return toAdminOperator(operator);
+  } catch (error) {
+    if (error.code === 'P2025') {
+      const notFoundError = new Error('Operator not found.');
+      notFoundError.statusCode = 404;
+      throw notFoundError;
+    }
+
+    throw error;
+  }
+}
+
 export async function endEvent(eventId) {
   const event = await prisma.event.findUnique({
     where: { id: eventId },

@@ -7,6 +7,7 @@ import {
   getAdminOperators,
   getAdminOverview,
   getAdminProfile,
+  resetOperatorPassword,
   updateFaculty,
   updateOperator,
 } from './admin.service.js';
@@ -109,6 +110,18 @@ export async function updateOperatorHandler(req, res, next) {
   try {
     const { operatorId } = req.params;
     const operator = await updateOperator(operatorId, req.body);
+
+    return res.json({ operator });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function resetOperatorPasswordHandler(req, res, next) {
+  try {
+    const { operatorId } = req.params;
+    const { password } = req.body;
+    const operator = await resetOperatorPassword(operatorId, password);
 
     return res.json({ operator });
   } catch (error) {

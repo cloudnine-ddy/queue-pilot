@@ -94,3 +94,13 @@ export async function updateOperator(operatorId, changes, token) {
 
   return data.operator;
 }
+
+export async function resetOperatorPassword(operatorId, password, token) {
+  const data = await request(`/api/admin/operators/${operatorId}/reset-password`, {
+    method: 'POST',
+    headers: authHeaders(token),
+    body: { password },
+  });
+
+  return data.operator;
+}

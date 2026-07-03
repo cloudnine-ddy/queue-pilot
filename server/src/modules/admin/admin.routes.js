@@ -9,6 +9,7 @@ import {
   getAdminOperatorsHandler,
   getAdminOverviewHandler,
   getAdminProfileHandler,
+  resetOperatorPasswordHandler,
   updateFacultyHandler,
   updateOperatorHandler,
 } from './admin.controller.js';
@@ -25,5 +26,6 @@ adminRouter.patch('/admin/faculties/:facultyId', updateFacultyHandler);
 adminRouter.get('/admin/operators', getAdminOperatorsHandler);
 adminRouter.post('/admin/operators', createOperatorHandler);
 adminRouter.patch('/admin/operators/:operatorId', updateOperatorHandler);
+adminRouter.post('/admin/operators/:operatorId/reset-password', resetOperatorPasswordHandler);
 adminRouter.post('/admin/events', createActiveEventHandler);
 adminRouter.post('/admin/events/:eventId/end', endEventHandler);

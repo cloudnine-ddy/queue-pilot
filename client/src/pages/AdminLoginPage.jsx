@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginAdmin } from '../api/authApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
-
-const adminSessionKey = 'queuePilot.adminSession';
+import { adminSessionKey } from './adminSession.js';
 
 export function AdminLoginPage() {
   const navigate = useNavigate();
@@ -80,5 +79,3 @@ export function AdminLoginPage() {
     </main>
   );
 }
-
-export { adminSessionKey };

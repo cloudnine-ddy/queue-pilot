@@ -56,6 +56,14 @@ export function AdminFacultiesPage() {
   }
 
   async function handleToggleFaculty(faculty) {
+    if (faculty.isActive) {
+      const confirmed = window.confirm(`Delete ${faculty.name} from the visible faculty list?`);
+
+      if (!confirmed) {
+        return;
+      }
+    }
+
     try {
       setError('');
       await updateFaculty(faculty.id, { isActive: !faculty.isActive }, session.token);
@@ -66,6 +74,7 @@ export function AdminFacultiesPage() {
   }
 
   const activeCount = faculties.filter((faculty) => faculty.isActive).length;
+  const deletedCount = faculties.length - activeCount;
 
   if (isLoading) {
     return <p className="text-sm font-medium text-slate-600">Loading faculties...</p>;
@@ -136,7 +145,7 @@ export function AdminFacultiesPage() {
             </h2>
           </div>
           <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
-            {activeCount} active / {faculties.length} total
+            {activeCount} active / {deletedCount} deleted
           </span>
         </div>
 
@@ -167,19 +176,23 @@ export function AdminFacultiesPage() {
                         className={`rounded-full px-3 py-1 text-xs font-semibold ${
                           faculty.isActive
                             ? 'bg-emerald-50 text-emerald-700'
-                            : 'bg-slate-100 text-slate-600'
+                            : 'bg-rose-50 text-rose-700'
                         }`}
                       >
-                        {faculty.isActive ? 'Active' : 'Inactive'}
+                        {faculty.isActive ? 'Active' : 'Deleted'}
                       </span>
                     </td>
                     <td className="pl-4 py-4 text-right">
                       <button
-                        className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                        className={`rounded-md border px-3 py-2 text-sm font-semibold ${
+                          faculty.isActive
+                            ? 'border-rose-200 text-rose-700 hover:bg-rose-50'
+                            : 'border-slate-300 text-slate-700 hover:bg-slate-100'
+                        }`}
                         onClick={() => handleToggleFaculty(faculty)}
                         type="button"
                       >
-                        {faculty.isActive ? 'Deactivate' : 'Activate'}
+                        {faculty.isActive ? 'Delete' : 'Restore'}
                       </button>
                     </td>
                   </tr>

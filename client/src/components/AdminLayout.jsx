@@ -165,7 +165,11 @@ export function AdminLayout() {
               {navItems.map((item) => (
                 <NavLink
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-md px-3 py-2.5 text-[15px] font-semibold ${
+                    `flex items-center rounded-md text-[15px] font-semibold ${
+                      isCollapsed
+                        ? 'mx-auto h-10 w-10 justify-center px-0 py-0'
+                        : 'gap-3 px-3 py-2.5'
+                    } ${
                       isActive
                         ? 'bg-monash-blue text-white'
                         : 'text-slate-700 hover:bg-monash-blue-soft hover:text-monash-blue'
@@ -190,8 +194,8 @@ export function AdminLayout() {
               )}
               <button
                 aria-label="Sign out"
-                className={`brand-button-secondary flex w-full items-center justify-center gap-2 px-3 ${
-                  isCollapsed ? 'py-2.5' : ''
+                className={`brand-button-secondary flex items-center justify-center gap-2 ${
+                  isCollapsed ? 'mx-auto h-10 w-10 px-0 py-0' : 'w-full px-3'
                 }`}
                 onClick={handleSignOut}
                 type="button"

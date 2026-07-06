@@ -28,7 +28,7 @@ export function PublicQueuePage() {
 
     setEvent(activeEvent);
     setFaculties(eventFaculties);
-    setSelectedFacultyId(eventFaculties[0]?.id || '');
+    setSelectedFacultyId('');
   }
 
   useEffect(() => {

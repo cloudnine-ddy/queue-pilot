@@ -11,8 +11,13 @@
     "dev": "concurrently -n docker,prisma,client,server -c blue,magenta,cyan,green \"docker compose up\" \"npm run prisma:studio -w server\" \"npm run dev -w client\" \"npm run dev -w server\"",
     "dev:client": "npm run dev -w client",
     "dev:server": "npm run dev -w server",
-    "build": "npm run build -w client",
-    "start": "npm run start -w server"
+    "build": "npm run build:server && npm run build:client",
+    "build:client": "npm run build -w client",
+    "build:server": "npm run build -w server",
+    "db:deploy": "npm run db:deploy -w server",
+    "start": "npm run start -w server",
+    "start:client:railway": "npm run preview -w client -- --host 0.0.0.0 --port $PORT",
+    "start:server": "npm run start -w server"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"

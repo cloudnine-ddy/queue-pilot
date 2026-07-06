@@ -15,10 +15,13 @@ import { ticketsRouter } from './modules/tickets/tickets.routes.js';
 
 const app = express();
 const port = process.env.PORT || 4000;
-const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+const clientOrigins = (process.env.CLIENT_URL || 'http://localhost:5173')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 app.use(helmet());
-app.use(cors({ origin: clientUrl }));
+app.use(cors({ origin: clientOrigins }));
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -60,7 +63,7 @@ const io = new Server(server, {
   // cors means Cross-Origin Resource Sharing
   // basically is allowing the client to connect to this server without stopping them (because they are from different ports)
   cors: {
-    origin: clientUrl
+    origin: clientOrigins
   }
 });
 

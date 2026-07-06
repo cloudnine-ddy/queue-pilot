@@ -5,9 +5,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
-    port: 5173,
-    allowedHosts: [
-      'client-production-69c6.up.railway.app'
-    ]
-  }
+    port: 5173
+  },
+  preview: {
+    allowedHosts: true
+  },
 });

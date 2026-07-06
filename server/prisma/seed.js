@@ -1,8 +1,11 @@
+import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import { prisma } from "../src/db/prisma.js";
+import { generateEventSummary } from "../src/modules/admin/admin.service.js";
 
 const developmentPassword = "password123";
 const developmentEventName = "Monash Open Day Development";
+const summaryDemoEventName = "Monash Open Day Summary Demo";
 
 const faculties = [
   {
@@ -142,6 +145,93 @@ async function main() {
       },
     });
   }
+
+  await prisma.event.deleteMany({
+    where: { name: summaryDemoEventName },
+  });
+
+  const summaryDemoFaculties = seededFaculties.filter((faculty) =>
+    ["SASS", "ENG", "GEN"].includes(faculty.code)
+  );
+
+  const summaryDemoEvent = await prisma.event.create({
+    data: {
+      name: summaryDemoEventName,
+      status: "ENDED",
+      startAt: new Date("2026-06-20T01:00:00.000Z"),
+      scheduledEndAt: new Date("2026-06-20T08:00:00.000Z"),
+      endAt: new Date("2026-06-20T08:15:00.000Z"),
+      eventFaculties: {
+        create: summaryDemoFaculties.map((faculty) => ({
+          facultyId: faculty.id,
+        })),
+      },
+    },
+  });
+
+  const summaryDemoTickets = [
+    {
+      code: "SASS",
+      sequenceNumber: 1,
+      status: "DONE",
+      createdAt: "2026-06-20T01:10:00.000Z",
+      calledAt: "2026-06-20T01:18:00.000Z",
+    },
+    {
+      code: "SASS",
+      sequenceNumber: 2,
+      status: "SKIPPED",
+      createdAt: "2026-06-20T01:15:00.000Z",
+      calledAt: "2026-06-20T01:25:00.000Z",
+    },
+    {
+      code: "ENG",
+      sequenceNumber: 1,
+      status: "DONE",
+      createdAt: "2026-06-20T01:20:00.000Z",
+      calledAt: "2026-06-20T01:31:00.000Z",
+    },
+    {
+      code: "ENG",
+      sequenceNumber: 2,
+      status: "DONE",
+      createdAt: "2026-06-20T01:23:00.000Z",
+      calledAt: "2026-06-20T01:38:00.000Z",
+    },
+    {
+      code: "GEN",
+      sequenceNumber: 1,
+      status: "CANCELLED",
+      createdAt: "2026-06-20T01:30:00.000Z",
+      calledAt: null,
+    },
+    {
+      code: "GEN",
+      sequenceNumber: 2,
+      status: "DONE",
+      createdAt: "2026-06-20T01:40:00.000Z",
+      calledAt: "2026-06-20T01:52:00.000Z",
+    },
+  ];
+
+  for (const ticket of summaryDemoTickets) {
+    const faculty = seededFaculties.find((seededFaculty) => seededFaculty.code === ticket.code);
+
+    await prisma.queueTicket.create({
+      data: {
+        eventId: summaryDemoEvent.id,
+        facultyId: faculty.id,
+        ticketNumber: `${ticket.code}-${String(ticket.sequenceNumber).padStart(3, "0")}`,
+        sequenceNumber: ticket.sequenceNumber,
+        token: crypto.randomUUID(),
+        status: ticket.status,
+        createdAt: new Date(ticket.createdAt),
+        calledAt: ticket.calledAt ? new Date(ticket.calledAt) : null,
+      },
+    });
+  }
+
+  await generateEventSummary(summaryDemoEvent.id);
 }
 
 main()

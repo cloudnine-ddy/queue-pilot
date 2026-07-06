@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginAdmin } from '../api/authApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
+import { PasswordField } from '../components/PasswordField.jsx';
 import { adminSessionKey } from './adminSession.js';
 
 export function AdminLoginPage() {
@@ -65,11 +66,9 @@ export function AdminLoginPage() {
             <label className="mt-4 block text-sm font-medium text-slate-700" htmlFor="admin-password">
               Password
             </label>
-            <input
-              className="brand-input mt-2 w-full"
+            <PasswordField
               id="admin-password"
               onChange={(event) => setPassword(event.target.value)}
-              type="password"
               value={password}
             />
 

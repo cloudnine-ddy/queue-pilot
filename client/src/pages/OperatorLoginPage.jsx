@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { loginOperator } from '../api/authApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
+import { PasswordField } from '../components/PasswordField.jsx';
 
 const operatorSessionKey = 'queuePilot.operatorSession';
 
@@ -65,11 +66,9 @@ export function OperatorLoginPage() {
             <label className="mt-4 block text-sm font-medium text-slate-700" htmlFor="password">
               Password
             </label>
-            <input
-              className="brand-input mt-2 w-full"
+            <PasswordField
               id="password"
               onChange={(event) => setPassword(event.target.value)}
-              type="password"
               value={password}
             />
 

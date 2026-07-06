@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useOutletContext, useParams } from 'react-router-dom';
 import { getAdminEventDetail } from '../api/adminApi.js';
+import { socket } from '../api/realtimeClient.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 import { getTicketStatusContent } from '../constants/ticketStatus.js';
 
@@ -9,24 +10,77 @@ export function AdminEventDetailPage() {
   const { session } = useOutletContext();
   const [detail, setDetail] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [lastUpdatedAt, setLastUpdatedAt] = useState(null);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    async function loadEventDetail() {
-      try {
+  const loadEventDetail = useCallback(async ({ showLoading = false } = {}) => {
+    try {
+      if (showLoading) {
         setIsLoading(true);
-        setError('');
-        const eventDetail = await getAdminEventDetail(eventId, session.token);
-        setDetail(eventDetail);
-      } catch (loadError) {
-        setError(loadError.message);
-      } finally {
+      }
+
+      setError('');
+      const eventDetail = await getAdminEventDetail(eventId, session.token);
+      setDetail(eventDetail);
+      setLastUpdatedAt(new Date());
+    } catch (loadError) {
+      setError(loadError.message);
+    } finally {
+      if (showLoading) {
         setIsLoading(false);
       }
     }
-
-    loadEventDetail();
   }, [eventId, session.token]);
+
+  useEffect(() => {
+    loadEventDetail({ showLoading: true });
+  }, [loadEventDetail]);
+
+  useEffect(() => {
+    const faculties = detail?.faculties || [];
+
+    if (!eventId || faculties.length === 0) {
+      return undefined;
+    }
+
+    const roomPayloads = faculties.map((faculty) => ({
+      eventId,
+      facultyId: faculty.id,
+    }));
+
+    function joinRooms() {
+      for (const payload of roomPayloads) {
+        socket.emit('queue:join', payload);
+      }
+    }
+
+    async function handleQueueUpdated(payload) {
+      if (payload.eventId !== eventId) {
+        return;
+      }
+
+      await loadEventDetail();
+    }
+
+    if (!socket.connected) {
+      socket.connect();
+    }
+
+    socket.on('connect', joinRooms);
+    socket.on('server:ready', joinRooms);
+    socket.on('queue:updated', handleQueueUpdated);
+    joinRooms();
+
+    return () => {
+      for (const payload of roomPayloads) {
+        socket.emit('queue:leave', payload);
+      }
+
+      socket.off('connect', joinRooms);
+      socket.off('server:ready', joinRooms);
+      socket.off('queue:updated', handleQueueUpdated);
+    };
+  }, [detail?.faculties, eventId, loadEventDetail]);
 
   if (isLoading) {
     return <p className="text-sm font-medium text-slate-600">Loading event...</p>;
@@ -57,6 +111,11 @@ export function AdminEventDetailPage() {
           {event?.name || 'Event'}
         </h1>
         <p className="mt-2 text-sm text-slate-600">{event?.status}</p>
+        {lastUpdatedAt && (
+          <p className="mt-1 text-xs text-slate-500">
+            Last updated {lastUpdatedAt.toLocaleTimeString()}
+          </p>
+        )}
       </header>
 
       <AlertMessage message={error} />

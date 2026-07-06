@@ -7,9 +7,9 @@ import {
 import { socket } from '../api/realtimeClient.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 import { TicketStatusCard } from '../components/TicketStatusCard.jsx';
+import { isActiveTicketStatus } from '../constants/ticketStatus.js';
 
 const ticketTokenKey = 'queuePilot.ticketToken';
-const activeTicketStatuses = ['WAITING', 'CALLED'];
 
 export function TicketStatusPage() {
   const { token } = useParams();
@@ -22,7 +22,7 @@ export function TicketStatusPage() {
     const refreshedTicket = await getTicketByToken(token);
     setTicket(refreshedTicket);
 
-    if (activeTicketStatuses.includes(refreshedTicket.status)) {
+    if (isActiveTicketStatus(refreshedTicket.status)) {
       localStorage.setItem(ticketTokenKey, token);
     } else {
       localStorage.removeItem(ticketTokenKey);

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useOutletContext, useParams } from 'react-router-dom';
 import { getAdminEventDetail } from '../api/adminApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
+import { getTicketStatusContent } from '../constants/ticketStatus.js';
 
 export function AdminEventDetailPage() {
   const { eventId } = useParams();
@@ -39,6 +40,7 @@ export function AdminEventDetailPage() {
     called: 0,
     done: 0,
     skipped: 0,
+    cancelled: 0,
     total: 0,
   };
 
@@ -59,7 +61,7 @@ export function AdminEventDetailPage() {
 
       <AlertMessage message={error} />
 
-      <section className="grid gap-4 sm:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-sm font-medium text-slate-500">Total</p>
           <p className="mt-2 text-2xl font-semibold text-slate-950">{totals.total}</p>
@@ -75,6 +77,10 @@ export function AdminEventDetailPage() {
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
           <p className="text-sm font-medium text-slate-500">Done</p>
           <p className="mt-2 text-2xl font-semibold text-slate-950">{totals.done}</p>
+        </div>
+        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <p className="text-sm font-medium text-slate-500">Cancelled</p>
+          <p className="mt-2 text-2xl font-semibold text-slate-950">{totals.cancelled}</p>
         </div>
       </section>
 
@@ -98,7 +104,8 @@ export function AdminEventDetailPage() {
                 <th className="px-4 py-3 text-right font-semibold">Waiting</th>
                 <th className="px-4 py-3 text-right font-semibold">Called</th>
                 <th className="px-4 py-3 text-right font-semibold">Done</th>
-                <th className="pl-4 py-3 text-right font-semibold">Skipped</th>
+                <th className="px-4 py-3 text-right font-semibold">Skipped</th>
+                <th className="pl-4 py-3 text-right font-semibold">Cancelled</th>
               </tr>
             </thead>
             <tbody>
@@ -116,7 +123,10 @@ export function AdminEventDetailPage() {
                   </td>
                   <td className="px-4 py-4 text-right text-slate-700">{faculty.queue.called}</td>
                   <td className="px-4 py-4 text-right text-slate-700">{faculty.queue.done}</td>
-                  <td className="pl-4 py-4 text-right text-slate-700">{faculty.queue.skipped}</td>
+                  <td className="px-4 py-4 text-right text-slate-700">{faculty.queue.skipped}</td>
+                  <td className="pl-4 py-4 text-right text-slate-700">
+                    {faculty.queue.cancelled}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -153,7 +163,15 @@ export function AdminEventDetailPage() {
                       {ticket.ticketNumber}
                     </td>
                     <td className="px-4 py-4 text-slate-700">{ticket.faculty.name}</td>
-                    <td className="px-4 py-4 text-slate-700">{ticket.status}</td>
+                    <td className="px-4 py-4">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          getTicketStatusContent(ticket.status).badgeClass
+                        }`}
+                      >
+                        {getTicketStatusContent(ticket.status).label}
+                      </span>
+                    </td>
                     <td className="pl-4 py-4 text-slate-700">
                       {new Date(ticket.createdAt).toLocaleString()}
                     </td>

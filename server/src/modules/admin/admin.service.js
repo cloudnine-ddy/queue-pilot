@@ -15,6 +15,7 @@ function emptyQueueCounts() {
     called: 0,
     done: 0,
     skipped: 0,
+    cancelled: 0,
     total: 0,
   };
 }
@@ -91,6 +92,7 @@ export async function getAdminOverview() {
     totals.called += counts.called;
     totals.done += counts.done;
     totals.skipped += counts.skipped;
+    totals.cancelled += counts.cancelled;
     totals.total += counts.total;
 
     return {
@@ -570,6 +572,7 @@ export async function getAdminEventDetail(eventId) {
     totals.called += counts.called;
     totals.done += counts.done;
     totals.skipped += counts.skipped;
+    totals.cancelled += counts.cancelled;
     totals.total += counts.total;
 
     return {

@@ -1,37 +1,15 @@
 import { useEffect, useState } from 'react';
+import {
+  getTicketStatusContent,
+  isActiveTicketStatus,
+} from '../constants/ticketStatus.js';
 import { formatElapsedTime } from '../utils/time.js';
-
-const statusContent = {
-  WAITING: {
-    badgeClass: 'bg-amber-50 text-amber-800',
-    message: 'Your number is still waiting in the queue.',
-  },
-  CALLED: {
-    badgeClass: 'bg-emerald-50 text-emerald-800',
-    message: null,
-  },
-  SKIPPED: {
-    badgeClass: 'bg-rose-50 text-rose-800',
-    message: 'Your number was skipped. Please contact the counter staff if you still need help.',
-  },
-  CANCELLED: {
-    badgeClass: 'bg-slate-100 text-slate-700',
-    message: 'This ticket was abandoned.',
-  },
-  DONE: {
-    badgeClass: 'bg-slate-100 text-slate-700',
-    message: 'This ticket has been completed.',
-  },
-};
 
 export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket }) {
   const [now, setNow] = useState(() => Date.now());
-  const canAbandon = ['WAITING', 'CALLED'].includes(ticket.status);
+  const canAbandon = isActiveTicketStatus(ticket.status);
   const isCalled = ticket.status === 'CALLED' && ticket.calledAt;
-  const content = statusContent[ticket.status] || {
-    badgeClass: 'bg-slate-100 text-slate-700',
-    message: 'Ticket status is being updated.',
-  };
+  const content = getTicketStatusContent(ticket.status);
 
   useEffect(() => {
     if (!isCalled) {
@@ -56,7 +34,7 @@ export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket })
           </p>
         </div>
         <span className={`w-fit rounded-full px-3 py-1 text-sm font-medium ${content.badgeClass}`}>
-          {ticket.status}
+          {content.label}
         </span>
       </div>
 

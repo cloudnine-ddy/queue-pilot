@@ -30,11 +30,11 @@ function readOperatorSession() {
 
 function OperatorStatePanel({ message, onSignOut, title }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
-      <h2 className="text-lg font-semibold text-slate-950">{title}</h2>
+    <section className="brand-card p-5">
+      <h2 className="text-lg font-semibold text-monash-ink">{title}</h2>
       <p className="mt-2 text-sm leading-6 text-slate-600">{message}</p>
       <button
-        className="mt-5 rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+        className="brand-button-secondary mt-5"
         onClick={onSignOut}
         type="button"
       >
@@ -250,8 +250,8 @@ export function OperatorQueuePage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
-        <div className="mx-auto flex min-h-[70vh] max-w-3xl items-center justify-center">
+      <main className="brand-page">
+        <div className="mx-auto flex min-h-[70vh] max-w-5xl items-center justify-center">
           <p className="text-sm font-medium text-slate-600">Loading operator queue...</p>
         </div>
       </main>
@@ -259,21 +259,21 @@ export function OperatorQueuePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-8 border-b border-slate-200 pb-5">
-          <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-            Operator
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
+    <main className="brand-page">
+      <div className="brand-shell max-w-5xl">
+        <header className="mb-8 border-b border-slate-200 pb-6">
+          <p className="brand-kicker">Operator console</p>
+          <h1 className="brand-title">
             {event?.name || 'Queue'}
           </h1>
           <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-slate-600">
-              Signed in as <span className="font-semibold">{session.operator.name}</span>
+              Signed in as <span className="font-semibold text-monash-ink">{session.operator.name}</span>
+              <span className="mx-2 text-slate-300">/</span>
+              <span>{session.operator.faculty.name}</span>
             </p>
             <button
-              className="w-fit rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              className="brand-button-secondary w-fit px-3"
               onClick={handleSignOut}
               type="button"
             >
@@ -298,7 +298,7 @@ export function OperatorQueuePage() {
           <>
             <AlertMessage message={error} />
             {notice && (
-              <div className="mb-5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+              <div className="mb-5 rounded-md border border-monash-blue/20 bg-monash-blue-soft px-4 py-3 text-sm font-medium text-monash-blue">
                 {notice}
               </div>
             )}

@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import { formatElapsedTime } from '../utils/time.js';
+
 export function OperatorCallPanel({
   calledTicket,
   faculty,
@@ -7,6 +10,33 @@ export function OperatorCallPanel({
   onSkip,
   waitingTickets,
 }) {
+  const [now, setNow] = useState(() => Date.now());
+  const isActivelyCalling = calledTicket?.status === 'CALLED';
+  const canCallNext = !isSubmitting && !isActivelyCalling && waitingTickets.length > 0;
+
+  useEffect(() => {
+    if (!isActivelyCalling || !calledTicket?.calledAt) {
+      return undefined;
+    }
+
+    setNow(Date.now());
+    const intervalId = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [isActivelyCalling, calledTicket?.calledAt]);
+
+  let callButtonText = 'Call next';
+
+  if (isSubmitting) {
+    callButtonText = 'Calling next...';
+  } else if (isActivelyCalling) {
+    callButtonText = 'Finish current ticket first';
+  } else if (waitingTickets.length === 0) {
+    callButtonText = 'No tickets waiting';
+  }
+
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
       <form onSubmit={onCallNext}>
@@ -17,10 +47,10 @@ export function OperatorCallPanel({
 
         <button
           className="mt-6 w-full rounded-md bg-slate-950 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-          disabled={isSubmitting}
+          disabled={!canCallNext}
           type="submit"
         >
-          {isSubmitting ? 'Calling next...' : 'Call next'}
+          {callButtonText}
         </button>
       </form>
 
@@ -34,8 +64,13 @@ export function OperatorCallPanel({
             </span>
           </div>
           <p className="mt-2 text-sm text-emerald-900">{calledTicket.faculty.name}</p>
+          {isActivelyCalling && calledTicket.calledAt && (
+            <p className="mt-2 text-sm font-medium text-emerald-900">
+              Called for {formatElapsedTime(calledTicket.calledAt, now)}
+            </p>
+          )}
 
-          {calledTicket.status === 'CALLED' && (
+          {isActivelyCalling && (
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <button
                 className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-400"

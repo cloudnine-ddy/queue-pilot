@@ -27,6 +27,22 @@ function readOperatorSession() {
   }
 }
 
+function OperatorStatePanel({ message, onSignOut, title }) {
+  return (
+    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <h2 className="text-lg font-semibold text-slate-950">{title}</h2>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{message}</p>
+      <button
+        className="mt-5 rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+        onClick={onSignOut}
+        type="button"
+      >
+        Sign out
+      </button>
+    </section>
+  );
+}
+
 export function OperatorQueuePage() {
   const navigate = useNavigate();
   const [session, setSession] = useState(() => readOperatorSession());
@@ -35,6 +51,7 @@ export function OperatorQueuePage() {
   const [calledTicket, setCalledTicket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [queueAccessError, setQueueAccessError] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -43,17 +60,25 @@ export function OperatorQueuePage() {
         return;
       }
 
+      let activeEvent = null;
+
       try {
         setIsLoading(true);
         setError('');
+        setQueueAccessError('');
 
-        const activeEvent = await getActiveEvent();
+        activeEvent = await getActiveEvent();
+        setEvent(activeEvent);
+
         const tickets = await getWaitingTickets(activeEvent.id, session.token);
 
-        setEvent(activeEvent);
         setWaitingTickets(tickets);
       } catch (loadError) {
-        setError(loadError.message);
+        if (activeEvent) {
+          setQueueAccessError(loadError.message);
+        } else {
+          setError(loadError.message);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -83,9 +108,10 @@ export function OperatorQueuePage() {
 
       try {
         const tickets = await getWaitingTickets(event.id, session.token);
+        setQueueAccessError('');
         setWaitingTickets(tickets);
       } catch (socketError) {
-        setError(socketError.message);
+        setQueueAccessError(socketError.message);
       }
     }
 
@@ -153,6 +179,12 @@ export function OperatorQueuePage() {
       return;
     }
 
+    const confirmed = window.confirm(`Skip ticket ${calledTicket.ticketNumber}?`);
+
+    if (!confirmed) {
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setError('');
@@ -210,17 +242,32 @@ export function OperatorQueuePage() {
           </div>
         </header>
 
-        <AlertMessage message={error} />
-
-        <OperatorCallPanel
-          calledTicket={calledTicket}
-          faculty={session.operator.faculty}
-          isSubmitting={isSubmitting}
-          onCallNext={handleCallNext}
-          onComplete={handleCompleteTicket}
-          onSkip={handleSkipTicket}
-          waitingTickets={waitingTickets}
-        />
+        {error && !event ? (
+          <OperatorStatePanel
+            message={error}
+            onSignOut={handleSignOut}
+            title="No queue available"
+          />
+        ) : queueAccessError ? (
+          <OperatorStatePanel
+            message={queueAccessError}
+            onSignOut={handleSignOut}
+            title="Queue access unavailable"
+          />
+        ) : (
+          <>
+            <AlertMessage message={error} />
+            <OperatorCallPanel
+              calledTicket={calledTicket}
+              faculty={session.operator.faculty}
+              isSubmitting={isSubmitting}
+              onCallNext={handleCallNext}
+              onComplete={handleCompleteTicket}
+              onSkip={handleSkipTicket}
+              waitingTickets={waitingTickets}
+            />
+          </>
+        )}
       </div>
     </main>
   );

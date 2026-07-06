@@ -1,3 +1,6 @@
+import { useEffect, useState } from 'react';
+import { formatElapsedTime } from '../utils/time.js';
+
 const statusContent = {
   WAITING: {
     badgeClass: 'bg-amber-50 text-amber-800',
@@ -22,11 +25,26 @@ const statusContent = {
 };
 
 export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket }) {
+  const [now, setNow] = useState(() => Date.now());
   const canAbandon = ['WAITING', 'CALLED'].includes(ticket.status);
+  const isCalled = ticket.status === 'CALLED' && ticket.calledAt;
   const content = statusContent[ticket.status] || {
     badgeClass: 'bg-slate-100 text-slate-700',
     message: 'Ticket status is being updated.',
   };
+
+  useEffect(() => {
+    if (!isCalled) {
+      return undefined;
+    }
+
+    setNow(Date.now());
+    const intervalId = window.setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+
+    return () => window.clearInterval(intervalId);
+  }, [isCalled, ticket.calledAt]);
 
   return (
     <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
@@ -56,6 +74,11 @@ export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket })
       {ticket.status === 'CALLED' && (
         <div className="mt-5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">
           Please proceed to the {ticket.faculty.name} counter area.
+          {isCalled && (
+            <span className="mt-1 block text-emerald-800">
+              Called for {formatElapsedTime(ticket.calledAt, now)}
+            </span>
+          )}
         </div>
       )}
 

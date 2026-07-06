@@ -8,6 +8,8 @@ export function OperatorCallPanel({
   onCallNext,
   onComplete,
   onSkip,
+  pendingAction,
+  pendingTicketId,
   waitingTickets,
 }) {
   const [now, setNow] = useState(() => Date.now());
@@ -88,7 +90,7 @@ export function OperatorCallPanel({
                     onClick={() => onComplete(ticket)}
                     type="button"
                   >
-                    Done
+                    {pendingTicketId === ticket.id && pendingAction === 'done' ? 'Saving...' : 'Done'}
                   </button>
                   <button
                     className="rounded-md border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:text-slate-400"
@@ -96,12 +98,18 @@ export function OperatorCallPanel({
                     onClick={() => onSkip(ticket)}
                     type="button"
                   >
-                    Skip
+                    {pendingTicketId === ticket.id && pendingAction === 'skip' ? 'Skipping...' : 'Skip'}
                   </button>
                 </div>
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {!hasActiveCalls && (
+        <div className="mt-6 rounded-md border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          No tickets are currently being called.
         </div>
       )}
 

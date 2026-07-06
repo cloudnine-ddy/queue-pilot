@@ -52,6 +52,9 @@ export function OperatorQueuePage() {
   const [calledTickets, setCalledTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [notice, setNotice] = useState('');
+  const [pendingAction, setPendingAction] = useState('');
+  const [pendingTicketId, setPendingTicketId] = useState('');
   const [queueAccessError, setQueueAccessError] = useState('');
   const [error, setError] = useState('');
 
@@ -76,6 +79,7 @@ export function OperatorQueuePage() {
       try {
         setIsLoading(true);
         setError('');
+        setNotice('');
         setQueueAccessError('');
 
         activeEvent = await getActiveEvent();
@@ -156,8 +160,10 @@ export function OperatorQueuePage() {
     try {
       setIsSubmitting(true);
       setError('');
+      setNotice('');
+      setPendingAction('call');
 
-      await callNextTicket(event.id, session.token);
+      const calledTicket = await callNextTicket(event.id, session.token);
       const [waiting, called] = await Promise.all([
         getWaitingTickets(event.id, session.token),
         getCalledTickets(event.id, session.token),
@@ -165,10 +171,12 @@ export function OperatorQueuePage() {
 
       setWaitingTickets(waiting);
       setCalledTickets(called);
+      setNotice(`${calledTicket.ticketNumber} is now being called.`);
     } catch (callError) {
       setError(callError.message);
     } finally {
       setIsSubmitting(false);
+      setPendingAction('');
     }
   }
 
@@ -180,15 +188,21 @@ export function OperatorQueuePage() {
     try {
       setIsSubmitting(true);
       setError('');
+      setNotice('');
+      setPendingAction('done');
+      setPendingTicketId(ticket.id);
 
       await completeTicket(ticket.id, session.token);
       const called = await getCalledTickets(event.id, session.token);
 
       setCalledTickets(called);
+      setNotice(`${ticket.ticketNumber} marked as done.`);
     } catch (completeError) {
       setError(completeError.message);
     } finally {
       setIsSubmitting(false);
+      setPendingAction('');
+      setPendingTicketId('');
     }
   }
 
@@ -206,15 +220,21 @@ export function OperatorQueuePage() {
     try {
       setIsSubmitting(true);
       setError('');
+      setNotice('');
+      setPendingAction('skip');
+      setPendingTicketId(ticket.id);
 
       await skipTicket(ticket.id, session.token);
       const called = await getCalledTickets(event.id, session.token);
 
       setCalledTickets(called);
+      setNotice(`${ticket.ticketNumber} skipped.`);
     } catch (skipError) {
       setError(skipError.message);
     } finally {
       setIsSubmitting(false);
+      setPendingAction('');
+      setPendingTicketId('');
     }
   }
 
@@ -277,6 +297,11 @@ export function OperatorQueuePage() {
         ) : (
           <>
             <AlertMessage message={error} />
+            {notice && (
+              <div className="mb-5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                {notice}
+              </div>
+            )}
             <OperatorCallPanel
               calledTickets={calledTickets}
               faculty={session.operator.faculty}
@@ -284,6 +309,8 @@ export function OperatorQueuePage() {
               onCallNext={handleCallNext}
               onComplete={handleCompleteTicket}
               onSkip={handleSkipTicket}
+              pendingAction={pendingAction}
+              pendingTicketId={pendingTicketId}
               waitingTickets={waitingTickets}
             />
           </>

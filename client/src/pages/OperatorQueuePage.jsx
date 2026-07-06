@@ -3,6 +3,7 @@ import { Navigate, useNavigate } from 'react-router-dom';
 import {
   callNextTicket,
   completeTicket,
+  getCalledTickets,
   getWaitingTickets,
   skipTicket,
 } from '../api/operatorApi.js';
@@ -48,13 +49,23 @@ export function OperatorQueuePage() {
   const [session, setSession] = useState(() => readOperatorSession());
   const [event, setEvent] = useState(null);
   const [waitingTickets, setWaitingTickets] = useState([]);
-  const [calledTicket, setCalledTicket] = useState(null);
+  const [calledTickets, setCalledTickets] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [queueAccessError, setQueueAccessError] = useState('');
   const [error, setError] = useState('');
 
   useEffect(() => {
+    async function refreshOperatorTickets(eventId, token) {
+      const [waiting, called] = await Promise.all([
+        getWaitingTickets(eventId, token),
+        getCalledTickets(eventId, token),
+      ]);
+
+      setWaitingTickets(waiting);
+      setCalledTickets(called);
+    }
+
     async function loadOperatorData() {
       if (!session?.token) {
         return;
@@ -70,9 +81,7 @@ export function OperatorQueuePage() {
         activeEvent = await getActiveEvent();
         setEvent(activeEvent);
 
-        const tickets = await getWaitingTickets(activeEvent.id, session.token);
-
-        setWaitingTickets(tickets);
+        await refreshOperatorTickets(activeEvent.id, session.token);
       } catch (loadError) {
         if (activeEvent) {
           setQueueAccessError(loadError.message);
@@ -107,9 +116,14 @@ export function OperatorQueuePage() {
       }
 
       try {
-        const tickets = await getWaitingTickets(event.id, session.token);
+        const [waiting, called] = await Promise.all([
+          getWaitingTickets(event.id, session.token),
+          getCalledTickets(event.id, session.token),
+        ]);
+
         setQueueAccessError('');
-        setWaitingTickets(tickets);
+        setWaitingTickets(waiting);
+        setCalledTickets(called);
       } catch (socketError) {
         setQueueAccessError(socketError.message);
       }
@@ -143,21 +157,23 @@ export function OperatorQueuePage() {
       setIsSubmitting(true);
       setError('');
 
-      const ticket = await callNextTicket(event.id, session.token);
-      const tickets = await getWaitingTickets(event.id, session.token);
+      await callNextTicket(event.id, session.token);
+      const [waiting, called] = await Promise.all([
+        getWaitingTickets(event.id, session.token),
+        getCalledTickets(event.id, session.token),
+      ]);
 
-      setCalledTicket(ticket);
-      setWaitingTickets(tickets);
+      setWaitingTickets(waiting);
+      setCalledTickets(called);
     } catch (callError) {
-      setCalledTicket(null);
       setError(callError.message);
     } finally {
       setIsSubmitting(false);
     }
   }
 
-  async function handleCompleteTicket() {
-    if (!calledTicket?.id || !session?.token) {
+  async function handleCompleteTicket(ticket) {
+    if (!ticket?.id || !session?.token || !event?.id) {
       return;
     }
 
@@ -165,8 +181,10 @@ export function OperatorQueuePage() {
       setIsSubmitting(true);
       setError('');
 
-      const ticket = await completeTicket(calledTicket.id, session.token);
-      setCalledTicket(ticket);
+      await completeTicket(ticket.id, session.token);
+      const called = await getCalledTickets(event.id, session.token);
+
+      setCalledTickets(called);
     } catch (completeError) {
       setError(completeError.message);
     } finally {
@@ -174,12 +192,12 @@ export function OperatorQueuePage() {
     }
   }
 
-  async function handleSkipTicket() {
-    if (!calledTicket?.id || !session?.token) {
+  async function handleSkipTicket(ticket) {
+    if (!ticket?.id || !session?.token || !event?.id) {
       return;
     }
 
-    const confirmed = window.confirm(`Skip ticket ${calledTicket.ticketNumber}?`);
+    const confirmed = window.confirm(`Skip ticket ${ticket.ticketNumber}?`);
 
     if (!confirmed) {
       return;
@@ -189,8 +207,10 @@ export function OperatorQueuePage() {
       setIsSubmitting(true);
       setError('');
 
-      const ticket = await skipTicket(calledTicket.id, session.token);
-      setCalledTicket(ticket);
+      await skipTicket(ticket.id, session.token);
+      const called = await getCalledTickets(event.id, session.token);
+
+      setCalledTickets(called);
     } catch (skipError) {
       setError(skipError.message);
     } finally {
@@ -258,7 +278,7 @@ export function OperatorQueuePage() {
           <>
             <AlertMessage message={error} />
             <OperatorCallPanel
-              calledTicket={calledTicket}
+              calledTickets={calledTickets}
               faculty={session.operator.faculty}
               isSubmitting={isSubmitting}
               onCallNext={handleCallNext}

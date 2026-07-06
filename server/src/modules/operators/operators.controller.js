@@ -1,9 +1,23 @@
 import {
   callNextTicket,
   completeTicket,
+  getCalledTickets,
   getWaitingTickets,
   skipTicket,
 } from './operators.service.js';
+
+export async function getCalledTicketsHandler(req, res, next) {
+  try {
+    const { eventId } = req.params;
+    const { facultyId } = req.operator;
+
+    const tickets = await getCalledTickets(eventId, facultyId);
+
+    return res.json({ tickets });
+  } catch (error) {
+    return next(error);
+  }
+}
 
 export async function getWaitingTicketsHandler(req, res, next) {
   try {

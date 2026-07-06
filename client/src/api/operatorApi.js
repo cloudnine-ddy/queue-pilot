@@ -13,6 +13,13 @@ export async function getWaitingTickets(eventId, token) {
   return data.tickets;
 }
 
+export async function getCalledTickets(eventId, token) {
+  const data = await request(`/api/operator/events/${eventId}/tickets/called`, {
+    headers: authHeaders(token),
+  });
+  return data.tickets;
+}
+
 export async function callNextTicket(eventId, token) {
   const data = await request(`/api/operator/events/${eventId}/call-next`, {
     method: 'POST',

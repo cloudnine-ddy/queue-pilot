@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { formatElapsedTime } from '../utils/time.js';
 
 export function OperatorCallPanel({
-  calledTicket,
+  calledTickets,
   faculty,
   isSubmitting,
   onCallNext,
@@ -11,11 +11,11 @@ export function OperatorCallPanel({
   waitingTickets,
 }) {
   const [now, setNow] = useState(() => Date.now());
-  const isActivelyCalling = calledTicket?.status === 'CALLED';
-  const canCallNext = !isSubmitting && !isActivelyCalling && waitingTickets.length > 0;
+  const hasActiveCalls = calledTickets.length > 0;
+  const canCallNext = !isSubmitting && waitingTickets.length > 0;
 
   useEffect(() => {
-    if (!isActivelyCalling || !calledTicket?.calledAt) {
+    if (!hasActiveCalls) {
       return undefined;
     }
 
@@ -25,14 +25,12 @@ export function OperatorCallPanel({
     }, 1000);
 
     return () => window.clearInterval(intervalId);
-  }, [isActivelyCalling, calledTicket?.calledAt]);
+  }, [hasActiveCalls]);
 
   let callButtonText = 'Call next';
 
   if (isSubmitting) {
     callButtonText = 'Calling next...';
-  } else if (isActivelyCalling) {
-    callButtonText = 'Finish current ticket first';
   } else if (waitingTickets.length === 0) {
     callButtonText = 'No tickets waiting';
   }
@@ -54,42 +52,56 @@ export function OperatorCallPanel({
         </button>
       </form>
 
-      {calledTicket && (
+      {hasActiveCalls && (
         <div className="mt-6 rounded-md bg-emerald-50 p-4">
-          <p className="text-sm font-medium text-emerald-800">Now calling</p>
-          <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-4xl font-semibold text-emerald-950">{calledTicket.ticketNumber}</p>
-            <span className="w-fit rounded-full bg-white px-3 py-1 text-sm font-medium text-emerald-800">
-              {calledTicket.status}
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm font-medium text-emerald-800">Currently calling</p>
+            <span className="rounded-full bg-white px-3 py-1 text-sm font-medium text-emerald-800">
+              {calledTickets.length} active
             </span>
           </div>
-          <p className="mt-2 text-sm text-emerald-900">{calledTicket.faculty.name}</p>
-          {isActivelyCalling && calledTicket.calledAt && (
-            <p className="mt-2 text-sm font-medium text-emerald-900">
-              Called for {formatElapsedTime(calledTicket.calledAt, now)}
-            </p>
-          )}
 
-          {isActivelyCalling && (
-            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-              <button
-                className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-400"
-                disabled={isSubmitting}
-                onClick={onComplete}
-                type="button"
+          <div className="mt-4 space-y-3">
+            {calledTickets.map((ticket) => (
+              <div
+                className="rounded-md border border-emerald-200 bg-white p-4"
+                key={ticket.id}
               >
-                Done
-              </button>
-              <button
-                className="rounded-md border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:text-slate-400"
-                disabled={isSubmitting}
-                onClick={onSkip}
-                type="button"
-              >
-                Skip
-              </button>
-            </div>
-          )}
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p className="text-3xl font-semibold text-emerald-950">
+                      {ticket.ticketNumber}
+                    </p>
+                    <p className="mt-1 text-sm font-medium text-emerald-900">
+                      Called for {formatElapsedTime(ticket.calledAt, now)}
+                    </p>
+                  </div>
+                  <span className="w-fit rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-800">
+                    {ticket.status}
+                  </span>
+                </div>
+
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <button
+                    className="rounded-md bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                    disabled={isSubmitting}
+                    onClick={() => onComplete(ticket)}
+                    type="button"
+                  >
+                    Done
+                  </button>
+                  <button
+                    className="rounded-md border border-emerald-300 bg-white px-4 py-2 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:text-slate-400"
+                    disabled={isSubmitting}
+                    onClick={() => onSkip(ticket)}
+                    type="button"
+                  >
+                    Skip
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

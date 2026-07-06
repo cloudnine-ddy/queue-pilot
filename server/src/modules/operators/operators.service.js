@@ -19,6 +19,32 @@ function toOperatorTicket(ticket) {
   };
 }
 
+const operatorTicketSelect = {
+  id: true,
+  eventId: true,
+  facultyId: true,
+  ticketNumber: true,
+  sequenceNumber: true,
+  token: true,
+  status: true,
+  createdAt: true,
+  calledAt: true,
+  faculty: {
+    select: {
+      id: true,
+      name: true,
+      code: true,
+    },
+  },
+  event: {
+    select: {
+      id: true,
+      name: true,
+      status: true,
+    },
+  },
+};
+
 // notice that this function is not exported, it is only used in this file
 // why? because we are not calling this function through any api url
 // we use it to check if the event and faculty are valid and active before we call the other functions
@@ -87,67 +113,81 @@ export async function getWaitingTickets(eventId, facultyId) {
   });
 }
 
+export async function getCalledTickets(eventId, facultyId) {
+  await getActiveEventFaculty(eventId, facultyId);
+
+  const tickets = await prisma.queueTicket.findMany({
+    where: {
+      eventId,
+      facultyId,
+      status: 'CALLED',
+    },
+    orderBy: {
+      calledAt: 'asc',
+    },
+    select: operatorTicketSelect,
+  });
+
+  return tickets.map(toOperatorTicket);
+}
+
 // this function will update the status of the ticket to CALLED
 // and return the ticket object, so it can be shown in the operator's screen
 export async function callNextTicket(eventId, facultyId) {
   await getActiveEventFaculty(eventId, facultyId);
 
-  const nextTicket = await prisma.queueTicket.findFirst({
-    where: {
-      eventId,
-      facultyId,
-      status: 'WAITING',
-    },
-    orderBy: {
-      createdAt: 'asc',
-    },
-  });
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    const nextTicket = await prisma.queueTicket.findFirst({
+      where: {
+        eventId,
+        facultyId,
+        status: 'WAITING',
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      select: {
+        id: true,
+      },
+    });
 
-  if (!nextTicket) {
-    const error = new Error('No waiting tickets found.');
-    error.statusCode = 404;
-    throw error;
+    if (!nextTicket) {
+      const error = new Error('No waiting tickets found.');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const result = await prisma.queueTicket.updateMany({
+      where: {
+        id: nextTicket.id,
+        status: 'WAITING',
+      },
+      data: {
+        status: 'CALLED',
+        calledAt: new Date(),
+      },
+    });
+
+    if (result.count === 0) {
+      continue;
+    }
+
+    const calledTicket = await prisma.queueTicket.findUnique({
+      where: {
+        id: nextTicket.id,
+      },
+      select: operatorTicketSelect,
+    });
+
+    emitQueueUpdated(calledTicket.eventId, calledTicket.facultyId);
+    emitTicketUpdated(calledTicket.token);
+
+    return toOperatorTicket(calledTicket);
   }
 
-  const calledTicket = await prisma.queueTicket.update({
-    where: {
-      id: nextTicket.id,
-    },
-    data: {
-      status: 'CALLED',
-      calledAt: new Date(),
-    },
-    select: {
-      id: true,
-      eventId: true,
-      facultyId: true,
-      ticketNumber: true,
-      sequenceNumber: true,
-      token: true,
-      status: true,
-      createdAt: true,
-      calledAt: true,
-      faculty: {
-        select: {
-          id: true,
-          name: true,
-          code: true,
-        },
-      },
-      event: {
-        select: {
-          id: true,
-          name: true,
-          status: true,
-        },
-      },
-    },
-  });
-
-  emitQueueUpdated(calledTicket.eventId, calledTicket.facultyId);
-  emitTicketUpdated(calledTicket.token);
-
-  return toOperatorTicket(calledTicket);
+  const error = new Error('Queue changed while calling next ticket. Please try again.');
+  error.statusCode = 409;
+  throw error;
 }
 
 // this function is not exported also
@@ -189,31 +229,7 @@ async function updateCalledTicketStatus(ticketId, operatorFacultyId, status) {
   const updatedTicket = await prisma.queueTicket.update({
     where: { id: ticketId },
     data: { status },
-    select: {
-      id: true,
-      eventId: true,
-      facultyId: true,
-      ticketNumber: true,
-      sequenceNumber: true,
-      token: true,
-      status: true,
-      createdAt: true,
-      calledAt: true,
-      faculty: {
-        select: {
-          id: true,
-          name: true,
-          code: true,
-        },
-      },
-      event: {
-        select: {
-          id: true,
-          name: true,
-          status: true,
-        },
-      },
-    },
+    select: operatorTicketSelect,
   });
 
   emitQueueUpdated(updatedTicket.eventId, updatedTicket.facultyId);

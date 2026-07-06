@@ -13,10 +13,11 @@ enum EventStatus {
 }
 
 enum TicketStatus {
-  WAITING @map("waiting")
-  CALLED  @map("called")
-  DONE    @map("done")
-  SKIPPED @map("skipped")
+  WAITING   @map("waiting")
+  CALLED    @map("called")
+  DONE      @map("done")
+  SKIPPED   @map("skipped")
+  CANCELLED @map("cancelled")
 }
 
 model Faculty {

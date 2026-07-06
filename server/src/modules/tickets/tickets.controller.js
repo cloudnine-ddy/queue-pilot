@@ -1,4 +1,8 @@
-import { createTicket, getTicketByToken } from './tickets.service.js';
+import {
+  abandonTicket,
+  createTicket,
+  getTicketByToken,
+} from './tickets.service.js';
 
 export async function createTicketHandler(req, res, next) {
   try {
@@ -17,6 +21,17 @@ export async function getTicketByTokenHandler(req, res, next) {
     const { token } = req.params;
 
     const ticket = await getTicketByToken(token);
+
+    return res.json({ ticket });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+export async function abandonTicketHandler(req, res, next) {
+  try {
+    const { token } = req.params;
+    const ticket = await abandonTicket(token);
 
     return res.json({ ticket });
   } catch (error) {

@@ -7,6 +7,7 @@ import { AdminFacultiesPage } from './pages/AdminFacultiesPage.jsx';
 import { AdminLoginPage } from './pages/AdminLoginPage.jsx';
 import { AdminOperatorsPage } from './pages/AdminOperatorsPage.jsx';
 import { PublicQueuePage } from './pages/PublicQueuePage.jsx';
+import { TicketStatusPage } from './pages/TicketStatusPage.jsx';
 import { OperatorLoginPage } from './pages/OperatorLoginPage.jsx';
 import { OperatorQueuePage } from './pages/OperatorQueuePage.jsx';
 
@@ -23,6 +24,7 @@ function App() {
           <Route element={<AdminOperatorsPage />} path="operators" />
         </Route>
         <Route element={<PublicQueuePage />} path="/" />
+        <Route element={<TicketStatusPage />} path="/tickets/:token" />
         <Route element={<OperatorLoginPage />} path="/operator/login" />
         <Route element={<OperatorQueuePage />} path="/operator" />
       </Routes>

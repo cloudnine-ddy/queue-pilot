@@ -1,6 +1,9 @@
 import crypto from 'node:crypto';
 import { prisma } from '../../db/prisma.js';
-import { emitQueueUpdated } from '../realtime/realtime.service.js';
+import {
+  emitQueueUpdated,
+  emitTicketUpdated,
+} from '../realtime/realtime.service.js';
 
 export async function createTicket(eventId, facultyId) {
 
@@ -145,4 +148,41 @@ export async function getTicketByToken(token) {
     faculty: ticket.faculty,
     event: ticket.event,
   };
+}
+
+export async function abandonTicket(token) {
+  const ticket = await prisma.queueTicket.findUnique({
+    where: { token },
+    select: {
+      id: true,
+      eventId: true,
+      facultyId: true,
+      status: true,
+      token: true,
+    },
+  });
+
+  if (!ticket) {
+    const error = new Error('Ticket not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  if (!['WAITING', 'CALLED'].includes(ticket.status)) {
+    const error = new Error('Only waiting or called tickets can be abandoned.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  await prisma.queueTicket.update({
+    where: { id: ticket.id },
+    data: {
+      status: 'CANCELLED',
+    },
+  });
+
+  emitQueueUpdated(ticket.eventId, ticket.facultyId);
+  emitTicketUpdated(ticket.token);
+
+  return getTicketByToken(token);
 }

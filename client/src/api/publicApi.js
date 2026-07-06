@@ -22,3 +22,11 @@ export async function getTicketByToken(token) {
   const data = await request(`/api/public/tickets/${token}`);
   return data.ticket;
 }
+
+export async function abandonTicket(token) {
+  const data = await request(`/api/public/tickets/${token}/abandon`, {
+    method: 'POST',
+  });
+
+  return data.ticket;
+}

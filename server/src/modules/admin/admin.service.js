@@ -20,6 +20,171 @@ function emptyQueueCounts() {
   };
 }
 
+function emptySummaryStats() {
+  return {
+    totalTickets: 0,
+    waiting: 0,
+    called: 0,
+    done: 0,
+    skipped: 0,
+    cancelled: 0,
+    averageWaitSeconds: null,
+  };
+}
+
+function addTicketToSummaryStats(stats, ticket) {
+  const statusKey = ticket.status.toLowerCase();
+
+  stats.totalTickets += 1;
+
+  if (stats[statusKey] !== undefined) {
+    stats[statusKey] += 1;
+  }
+
+  if (ticket.calledAt) {
+    const waitSeconds = Math.max(
+      0,
+      Math.round((ticket.calledAt.getTime() - ticket.createdAt.getTime()) / 1000)
+    );
+
+    stats.waitSecondsTotal += waitSeconds;
+    stats.waitSampleCount += 1;
+  }
+}
+
+function finalizeSummaryStats(stats) {
+  const averageWaitSeconds =
+    stats.waitSampleCount > 0
+      ? Math.round(stats.waitSecondsTotal / stats.waitSampleCount)
+      : null;
+
+  return {
+    totalTickets: stats.totalTickets,
+    waiting: stats.waiting,
+    called: stats.called,
+    done: stats.done,
+    skipped: stats.skipped,
+    cancelled: stats.cancelled,
+    averageWaitSeconds,
+  };
+}
+
+function createMutableSummaryStats() {
+  return {
+    ...emptySummaryStats(),
+    waitSampleCount: 0,
+    waitSecondsTotal: 0,
+  };
+}
+
+function toSummaryDate(date) {
+  return date ? date.toISOString() : null;
+}
+
+export async function generateEventSummary(eventId) {
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    include: {
+      eventFaculties: {
+        include: {
+          faculty: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+        },
+        orderBy: {
+          faculty: {
+            name: 'asc',
+          },
+        },
+      },
+      queueTickets: {
+        include: {
+          faculty: {
+            select: {
+              id: true,
+              name: true,
+              code: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!event) {
+    const error = new Error('Event not found.');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const overallStats = createMutableSummaryStats();
+  const facultyStats = new Map(
+    event.eventFaculties.map((eventFaculty) => [
+      eventFaculty.facultyId,
+      {
+        faculty: eventFaculty.faculty,
+        stats: createMutableSummaryStats(),
+      },
+    ])
+  );
+
+  for (const ticket of event.queueTickets) {
+    addTicketToSummaryStats(overallStats, ticket);
+
+    const facultyEntry = facultyStats.get(ticket.facultyId) || {
+      faculty: ticket.faculty,
+      stats: createMutableSummaryStats(),
+    };
+
+    addTicketToSummaryStats(facultyEntry.stats, ticket);
+    facultyStats.set(ticket.facultyId, facultyEntry);
+  }
+
+  const summaryData = {
+    event: {
+      id: event.id,
+      name: event.name,
+      status: event.status,
+      startAt: toSummaryDate(event.startAt),
+      scheduledEndAt: toSummaryDate(event.scheduledEndAt),
+      endAt: toSummaryDate(event.endAt),
+    },
+    overall: finalizeSummaryStats(overallStats),
+    faculties: [...facultyStats.values()].map((entry) => ({
+      facultyId: entry.faculty.id,
+      facultyName: entry.faculty.name,
+      facultyCode: entry.faculty.code,
+      ...finalizeSummaryStats(entry.stats),
+    })),
+  };
+
+  const summary = await prisma.eventSummary.upsert({
+    where: { eventId },
+    update: {
+      data: summaryData,
+    },
+    create: {
+      eventId,
+      data: summaryData,
+    },
+  });
+
+  const summaryGeneratedAt = new Date();
+
+  await prisma.event.update({
+    where: { id: eventId },
+    data: {
+      summaryGeneratedAt,
+    },
+  });
+
+  return summary;
+}
+
 export async function getAdminOverview() {
   const activeEvent = await prisma.event.findFirst({
     where: { status: 'ACTIVE' },
@@ -453,7 +618,7 @@ export async function endEvent(eventId) {
     throw error;
   }
 
-  return prisma.event.update({
+  const endedEvent = await prisma.event.update({
     where: { id: eventId },
     data: {
       status: 'ENDED',
@@ -467,6 +632,10 @@ export async function endEvent(eventId) {
       endAt: true,
     },
   });
+
+  await generateEventSummary(eventId);
+
+  return endedEvent;
 }
 
 export async function getAdminEvents() {

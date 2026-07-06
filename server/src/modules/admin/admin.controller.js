@@ -14,6 +14,7 @@ import {
   updateFaculty,
   updateOperator,
 } from './admin.service.js';
+import { endExpiredActiveEvents } from '../events/eventLifecycle.service.js';
 
 export function getAdminProfileHandler(req, res) {
   return res.json({
@@ -23,6 +24,7 @@ export function getAdminProfileHandler(req, res) {
 
 export async function getAdminOverviewHandler(_req, res, next) {
   try {
+    await endExpiredActiveEvents();
     const overview = await getAdminOverview();
 
     return res.json(overview);
@@ -44,6 +46,7 @@ export async function endEventHandler(req, res, next) {
 
 export async function getAdminEventsHandler(_req, res, next) {
   try {
+    await endExpiredActiveEvents();
     const events = await getAdminEvents();
 
     return res.json({ events });
@@ -54,6 +57,7 @@ export async function getAdminEventsHandler(_req, res, next) {
 
 export async function getAdminEventDetailHandler(req, res, next) {
   try {
+    await endExpiredActiveEvents();
     const { eventId } = req.params;
     const detail = await getAdminEventDetail(eventId);
 
@@ -75,6 +79,7 @@ export async function createEventHandler(req, res, next) {
 
 export async function startEventHandler(req, res, next) {
   try {
+    await endExpiredActiveEvents();
     const { eventId } = req.params;
     const event = await startEvent(eventId);
 

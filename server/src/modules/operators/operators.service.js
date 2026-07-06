@@ -3,6 +3,7 @@ import {
   emitQueueUpdated,
   emitTicketUpdated,
 } from '../realtime/realtime.service.js';
+import { endExpiredActiveEvents } from '../events/eventLifecycle.service.js';
 
 // this function is used to convert the ticket object from the database
 // to the format that we want to send to the operator
@@ -49,6 +50,8 @@ const operatorTicketSelect = {
 // why? because we are not calling this function through any api url
 // we use it to check if the event and faculty are valid and active before we call the other functions
 async function getActiveEventFaculty(eventId, facultyId) {
+  await endExpiredActiveEvents();
+
   const eventFaculty = await prisma.eventFaculty.findUnique({
     where: {
       // because in the prisma schema we have a compound unique key for eventId and facultyId

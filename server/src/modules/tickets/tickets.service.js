@@ -4,8 +4,10 @@ import {
   emitQueueUpdated,
   emitTicketUpdated,
 } from '../realtime/realtime.service.js';
+import { endExpiredActiveEvents } from '../events/eventLifecycle.service.js';
 
 export async function createTicket(eventId, facultyId) {
+  await endExpiredActiveEvents();
 
   // this whole section is to check if the faculty is available for the event and if the event is active
   const eventFaculty = await prisma.eventFaculty.findUnique({

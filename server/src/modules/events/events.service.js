@@ -11,6 +11,7 @@ export async function getActiveEvent() {
       name: true,
       status: true,
       startAt: true,
+      scheduledEndAt: true,
       endAt: true,
     },
   });

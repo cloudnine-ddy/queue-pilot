@@ -20,6 +20,7 @@ export function AdminEventsPage() {
   const [faculties, setFaculties] = useState([]);
   const [eventName, setEventName] = useState('');
   const [startAt, setStartAt] = useState(() => toDateTimeLocalValue(new Date()));
+  const [scheduledEndAt, setScheduledEndAt] = useState('');
   const [selectedFacultyIds, setSelectedFacultyIds] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,11 +66,13 @@ export function AdminEventsPage() {
         {
           facultyIds: selectedFacultyIds,
           name: eventName,
+          scheduledEndAt: scheduledEndAt || null,
           startAt,
         },
         session.token
       );
       setEventName('');
+      setScheduledEndAt('');
       await loadEventsPage();
     } catch (createError) {
       setError(createError.message);
@@ -145,6 +148,11 @@ export function AdminEventsPage() {
                 ? `Started ${new Date(activeEvent.startAt).toLocaleString()}`
                 : 'Start an upcoming event when queues are ready to open.'}
             </p>
+            {activeEvent?.scheduledEndAt && (
+              <p className="mt-1 text-sm text-slate-600">
+                Scheduled end {new Date(activeEvent.scheduledEndAt).toLocaleString()}
+              </p>
+            )}
           </div>
 
           {activeEvent && (
@@ -199,22 +207,37 @@ export function AdminEventsPage() {
         </div>
 
         <form className="mt-5 space-y-5" onSubmit={handleCreateEvent}>
-          <div className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
-            <input
-              className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
-              onChange={(inputEvent) => setEventName(inputEvent.target.value)}
-              placeholder="Monash Open Day August"
-              type="text"
-              value={eventName}
-            />
-            <input
-              className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
-              onChange={(inputEvent) => setStartAt(inputEvent.target.value)}
-              type="datetime-local"
-              value={startAt}
-            />
+          <div className="grid gap-3 lg:grid-cols-[1fr_220px_220px_auto]">
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-slate-700">Event name</span>
+              <input
+                className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                onChange={(inputEvent) => setEventName(inputEvent.target.value)}
+                placeholder="Monash Open Day August"
+                type="text"
+                value={eventName}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-slate-700">Start</span>
+              <input
+                className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                onChange={(inputEvent) => setStartAt(inputEvent.target.value)}
+                type="datetime-local"
+                value={startAt}
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-sm font-medium text-slate-700">Scheduled end</span>
+              <input
+                className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                onChange={(inputEvent) => setScheduledEndAt(inputEvent.target.value)}
+                type="datetime-local"
+                value={scheduledEndAt}
+              />
+            </label>
             <button
-              className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="self-end rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
               disabled={
                 isSubmitting ||
                 !eventName.trim() ||
@@ -278,6 +301,7 @@ export function AdminEventsPage() {
                   <th className="py-3 pr-4 font-semibold">Event</th>
                   <th className="px-4 py-3 font-semibold">Status</th>
                   <th className="px-4 py-3 font-semibold">Start</th>
+                  <th className="px-4 py-3 font-semibold">Scheduled end</th>
                   <th className="px-4 py-3 text-right font-semibold">Faculties</th>
                   <th className="px-4 py-3 text-right font-semibold">Tickets</th>
                   <th className="pl-4 py-3 text-right font-semibold">Action</th>
@@ -296,6 +320,11 @@ export function AdminEventsPage() {
                     </td>
                     <td className="px-4 py-4 text-slate-700">
                       {new Date(event.startAt).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-4 text-slate-700">
+                      {event.scheduledEndAt
+                        ? new Date(event.scheduledEndAt).toLocaleString()
+                        : 'Not set'}
                     </td>
                     <td className="px-4 py-4 text-right text-slate-700">
                       {event.facultyCount}

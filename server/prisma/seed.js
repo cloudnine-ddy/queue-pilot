@@ -114,6 +114,7 @@ async function main() {
         data: {
           status: "ACTIVE",
           startAt: new Date("2026-07-01T00:00:00.000Z"),
+          scheduledEndAt: new Date("2026-07-01T08:00:00.000Z"),
           endAt: null,
         },
       })
@@ -122,6 +123,7 @@ async function main() {
           name: developmentEventName,
           status: "ACTIVE",
           startAt: new Date("2026-07-01T00:00:00.000Z"),
+          scheduledEndAt: new Date("2026-07-01T08:00:00.000Z"),
         },
       });
 

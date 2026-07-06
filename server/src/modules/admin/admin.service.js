@@ -276,6 +276,7 @@ export async function getAdminOverview() {
       name: activeEvent.name,
       status: activeEvent.status,
       startAt: activeEvent.startAt,
+      scheduledEndAt: activeEvent.scheduledEndAt,
       endAt: activeEvent.endAt,
     },
     faculties,
@@ -629,6 +630,7 @@ export async function endEvent(eventId) {
       name: true,
       status: true,
       startAt: true,
+      scheduledEndAt: true,
       endAt: true,
     },
   });
@@ -658,6 +660,7 @@ export async function getAdminEvents() {
     name: event.name,
     status: event.status,
     startAt: event.startAt,
+    scheduledEndAt: event.scheduledEndAt,
     endAt: event.endAt,
     facultyCount: event._count.eventFaculties,
     ticketCount: event._count.queueTickets,
@@ -760,6 +763,7 @@ export async function getAdminEventDetail(eventId) {
       name: event.name,
       status: event.status,
       startAt: event.startAt,
+      scheduledEndAt: event.scheduledEndAt,
       endAt: event.endAt,
     },
     faculties,
@@ -776,7 +780,7 @@ export async function getAdminEventDetail(eventId) {
   };
 }
 
-export async function createEvent({ facultyIds, name, startAt }) {
+export async function createEvent({ facultyIds, name, scheduledEndAt, startAt }) {
   const trimmedName = name?.trim();
 
   if (!trimmedName) {
@@ -789,6 +793,20 @@ export async function createEvent({ facultyIds, name, startAt }) {
 
   if (!startAt || Number.isNaN(startDate.getTime())) {
     const error = new Error('Valid start date is required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const scheduledEndDate = scheduledEndAt ? new Date(scheduledEndAt) : null;
+
+  if (scheduledEndAt && Number.isNaN(scheduledEndDate.getTime())) {
+    const error = new Error('Valid scheduled end date is required.');
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (scheduledEndDate && scheduledEndDate <= startDate) {
+    const error = new Error('Scheduled end date must be after the start date.');
     error.statusCode = 400;
     throw error;
   }
@@ -820,6 +838,7 @@ export async function createEvent({ facultyIds, name, startAt }) {
       name: trimmedName,
       status: 'UPCOMING',
       startAt: startDate,
+      scheduledEndAt: scheduledEndDate,
       eventFaculties: {
         create: faculties.map((faculty) => ({
           facultyId: faculty.id,
@@ -831,6 +850,7 @@ export async function createEvent({ facultyIds, name, startAt }) {
       name: true,
       status: true,
       startAt: true,
+      scheduledEndAt: true,
       endAt: true,
     },
   });
@@ -876,6 +896,7 @@ export async function startEvent(eventId) {
       name: true,
       status: true,
       startAt: true,
+      scheduledEndAt: true,
       endAt: true,
     },
   });

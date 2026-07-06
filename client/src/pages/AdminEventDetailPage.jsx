@@ -111,6 +111,11 @@ export function AdminEventDetailPage() {
           {event?.name || 'Event'}
         </h1>
         <p className="mt-2 text-sm text-slate-600">{event?.status}</p>
+        {event?.scheduledEndAt && (
+          <p className="mt-1 text-sm text-slate-600">
+            Scheduled end {new Date(event.scheduledEndAt).toLocaleString()}
+          </p>
+        )}
         {lastUpdatedAt && (
           <p className="mt-1 text-xs text-slate-500">
             Last updated {lastUpdatedAt.toLocaleTimeString()}

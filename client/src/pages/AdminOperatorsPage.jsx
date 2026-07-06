@@ -180,7 +180,7 @@ export function AdminOperatorsPage() {
   return (
     <>
       <header className="mb-8 border-b border-slate-200 pb-5">
-        <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+        <p className="text-sm font-semibold uppercase tracking-wide text-monash-blue">
           Admin
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
@@ -200,14 +200,14 @@ export function AdminOperatorsPage() {
 
         <form className="mt-5 grid gap-3 lg:grid-cols-[1fr_1fr_160px_1fr_auto]" onSubmit={handleCreateOperator}>
           <input
-            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
             onChange={(event) => setName(event.target.value)}
             placeholder="Operator name"
             type="text"
             value={name}
           />
           <input
-            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
             onChange={(event) => setEmail(event.target.value)}
             placeholder="operator@example.com"
             type="email"
@@ -215,7 +215,7 @@ export function AdminOperatorsPage() {
           />
           <div className="flex min-w-0">
             <input
-              className="min-w-0 flex-1 rounded-l-md border border-r-0 border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="min-w-0 flex-1 rounded-l-md border border-r-0 border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
               onChange={(event) => setPassword(event.target.value)}
               placeholder="Password"
               type={showCreatePassword ? 'text' : 'password'}
@@ -231,7 +231,7 @@ export function AdminOperatorsPage() {
             </button>
           </div>
           <select
-            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
             disabled={unassignedFaculties.length === 0}
             onChange={(event) => setFacultyId(event.target.value)}
             value={facultyId}
@@ -247,7 +247,7 @@ export function AdminOperatorsPage() {
             )}
           </select>
           <button
-            className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+            className="rounded-md bg-monash-blue px-4 py-2 text-sm font-semibold text-white hover:bg-monash-blue-dark disabled:cursor-not-allowed disabled:bg-slate-400"
             disabled={
               isSubmitting ||
               !name.trim() ||
@@ -303,7 +303,7 @@ export function AdminOperatorsPage() {
                     <tr className="border-b border-slate-100 last:border-0" key={operator.id}>
                       <td className="py-4 pr-4">
                         <input
-                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
                           onChange={(event) =>
                             handleEditOperator(operator.id, 'name', event.target.value)
                           }
@@ -312,7 +312,7 @@ export function AdminOperatorsPage() {
                       </td>
                       <td className="px-4 py-4">
                         <input
-                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
                           onChange={(event) =>
                             handleEditOperator(operator.id, 'email', event.target.value)
                           }
@@ -322,7 +322,7 @@ export function AdminOperatorsPage() {
                       </td>
                       <td className="px-4 py-4">
                         <select
-                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                          className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
                           onChange={(event) =>
                             handleEditOperator(operator.id, 'facultyId', event.target.value)
                           }
@@ -346,7 +346,7 @@ export function AdminOperatorsPage() {
                       </td>
                       <td className="pl-4 py-4 text-right">
                         <button
-                          className="rounded-md bg-slate-950 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                          className="rounded-md bg-monash-blue px-3 py-2 text-sm font-semibold text-white hover:bg-monash-blue-dark"
                           onClick={() => handleSaveOperator(operator.id)}
                           type="button"
                         >
@@ -383,7 +383,7 @@ export function AdminOperatorsPage() {
               </label>
               <div className="mt-2 flex">
                 <input
-                  className="min-w-0 flex-1 rounded-l-md border border-r-0 border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                  className="min-w-0 flex-1 rounded-l-md border border-r-0 border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
                   id="reset-password"
                   onChange={(event) => setResetPassword(event.target.value)}
                   type={showResetPassword ? 'text' : 'password'}
@@ -408,7 +408,7 @@ export function AdminOperatorsPage() {
                   Cancel
                 </button>
                 <button
-                  className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                  className="rounded-md bg-monash-blue px-4 py-2 text-sm font-semibold text-white hover:bg-monash-blue-dark disabled:cursor-not-allowed disabled:bg-slate-400"
                   disabled={!resetPassword}
                   type="submit"
                 >
@@ -422,3 +422,4 @@ export function AdminOperatorsPage() {
     </>
   );
 }
+

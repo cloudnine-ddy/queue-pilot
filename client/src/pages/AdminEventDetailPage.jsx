@@ -120,7 +120,7 @@ export function AdminEventDetailPage() {
         <Link className="text-sm font-semibold text-slate-600 hover:text-slate-950" to="/admin/events">
           Back to events
         </Link>
-        <p className="mt-4 text-sm font-semibold uppercase tracking-wide text-emerald-700">
+        <p className="mt-4 text-sm font-semibold uppercase tracking-wide text-monash-blue">
           Event detail
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
@@ -351,3 +351,4 @@ export function AdminEventDetailPage() {
     </>
   );
 }
+

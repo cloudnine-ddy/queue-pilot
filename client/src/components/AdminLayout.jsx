@@ -57,7 +57,7 @@ export function AdminLayout() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
+      <main className="brand-page">
         <div className="mx-auto flex min-h-[70vh] max-w-4xl items-center justify-center">
           <p className="text-sm font-medium text-slate-600">Loading admin...</p>
         </div>
@@ -66,10 +66,10 @@ export function AdminLayout() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-950">
+    <main className="min-h-screen bg-[#f6f8fb] text-monash-ink">
       <div className="flex min-h-screen">
         <aside
-          className={`border-r border-slate-200 bg-white transition-all ${
+          className={`sticky top-0 h-screen border-r border-slate-200 bg-white transition-all ${
             isCollapsed ? 'w-20' : 'w-64'
           }`}
         >
@@ -77,16 +77,16 @@ export function AdminLayout() {
             <div className="flex items-center justify-between gap-2">
               {!isCollapsed && (
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                    Admin
+                  <p className="text-xs font-semibold uppercase tracking-wide text-monash-blue">
+                    Monash
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-slate-950">
+                  <p className="mt-1 text-sm font-semibold text-monash-ink">
                     Queue Pilot
                   </p>
                 </div>
               )}
               <button
-                className="rounded-md border border-slate-200 px-2 py-1 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+                className="rounded-md border border-slate-200 px-2 py-1 text-sm font-semibold text-slate-700 hover:border-monash-blue hover:text-monash-blue"
                 onClick={() => setIsCollapsed((value) => !value)}
                 type="button"
               >
@@ -100,8 +100,8 @@ export function AdminLayout() {
                   className={({ isActive }) =>
                     `block rounded-md px-3 py-2 text-sm font-semibold ${
                       isActive
-                        ? 'bg-slate-950 text-white'
-                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-950'
+                        ? 'bg-monash-blue text-white'
+                        : 'text-slate-700 hover:bg-monash-blue-soft hover:text-monash-blue'
                     }`
                   }
                   end={item.to === '/admin'}
@@ -117,11 +117,11 @@ export function AdminLayout() {
             <div className="mt-auto border-t border-slate-200 pt-4">
               {!isCollapsed && (
                 <p className="mb-3 text-sm text-slate-600">
-                  <span className="font-semibold">{admin?.name}</span>
+                  <span className="font-semibold text-monash-ink">{admin?.name}</span>
                 </p>
               )}
               <button
-                className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+                className="brand-button-secondary w-full px-3"
                 onClick={handleSignOut}
                 type="button"
               >
@@ -132,7 +132,7 @@ export function AdminLayout() {
         </aside>
 
         <section className="min-w-0 flex-1 px-5 py-8">
-          <div className="mx-auto max-w-5xl">
+          <div className="mx-auto max-w-6xl">
             <AlertMessage message={error} />
             <Outlet context={{ admin, session }} />
           </div>
@@ -141,3 +141,4 @@ export function AdminLayout() {
     </main>
   );
 }
+

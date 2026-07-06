@@ -126,7 +126,7 @@ export function AdminEventsPage() {
   return (
     <>
       <header className="mb-8 border-b border-slate-200 pb-5">
-        <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+        <p className="text-sm font-semibold uppercase tracking-wide text-monash-blue">
           Admin
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
@@ -158,7 +158,7 @@ export function AdminEventsPage() {
           {activeEvent && (
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link
-                className="inline-flex justify-center rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+                className="inline-flex justify-center rounded-md bg-monash-blue px-4 py-2 text-sm font-semibold text-white hover:bg-monash-blue-dark"
                 to={`/admin/events/${activeEvent.id}`}
               >
                 View queue
@@ -211,7 +211,7 @@ export function AdminEventsPage() {
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-slate-700">Event name</span>
               <input
-                className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
                 onChange={(inputEvent) => setEventName(inputEvent.target.value)}
                 placeholder="Monash Open Day August"
                 type="text"
@@ -221,7 +221,7 @@ export function AdminEventsPage() {
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-slate-700">Start</span>
               <input
-                className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
                 onChange={(inputEvent) => setStartAt(inputEvent.target.value)}
                 type="datetime-local"
                 value={startAt}
@@ -230,14 +230,14 @@ export function AdminEventsPage() {
             <label className="block">
               <span className="mb-1 block text-sm font-medium text-slate-700">Scheduled end</span>
               <input
-                className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                className="w-full min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
                 onChange={(inputEvent) => setScheduledEndAt(inputEvent.target.value)}
                 type="datetime-local"
                 value={scheduledEndAt}
               />
             </label>
             <button
-              className="self-end rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="self-end rounded-md bg-monash-blue px-4 py-2 text-sm font-semibold text-white hover:bg-monash-blue-dark disabled:cursor-not-allowed disabled:bg-slate-400"
               disabled={
                 isSubmitting ||
                 !eventName.trim() ||
@@ -341,7 +341,7 @@ export function AdminEventsPage() {
                       </Link>
                       {event.status === 'UPCOMING' && (
                         <button
-                          className="rounded-md bg-slate-950 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+                          className="rounded-md bg-monash-blue px-3 py-2 text-sm font-semibold text-white hover:bg-monash-blue-dark disabled:cursor-not-allowed disabled:bg-slate-400"
                           disabled={Boolean(activeEvent)}
                           onClick={() => handleStartEvent(event)}
                           type="button"
@@ -350,7 +350,7 @@ export function AdminEventsPage() {
                         </button>
                       )}
                       {event.status === 'ACTIVE' && (
-                        <span className="inline-flex rounded-md bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-700">
+                        <span className="inline-flex rounded-md bg-emerald-50 px-3 py-2 text-sm font-semibold text-monash-blue">
                           Current
                         </span>
                       )}
@@ -369,3 +369,4 @@ export function AdminEventsPage() {
     </>
   );
 }
+

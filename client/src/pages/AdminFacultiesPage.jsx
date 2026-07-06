@@ -83,7 +83,7 @@ export function AdminFacultiesPage() {
   return (
     <>
       <header className="mb-8 border-b border-slate-200 pb-5">
-        <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
+        <p className="text-sm font-semibold uppercase tracking-wide text-monash-blue">
           Admin
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
@@ -106,7 +106,7 @@ export function AdminFacultiesPage() {
             Faculty name
           </label>
           <input
-            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
             id="faculty-name"
             onChange={(event) => setName(event.target.value)}
             placeholder="School of Example"
@@ -118,7 +118,7 @@ export function AdminFacultiesPage() {
             Faculty code
           </label>
           <input
-            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base uppercase text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+            className="min-w-0 rounded-md border border-slate-300 bg-white px-3 py-2 text-base uppercase text-slate-950 outline-none focus:border-monash-blue focus:ring-2 focus:ring-monash-blue/15"
             id="faculty-code"
             onChange={(event) => setCode(event.target.value)}
             placeholder="EX"
@@ -127,7 +127,7 @@ export function AdminFacultiesPage() {
           />
 
           <button
-            className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+            className="rounded-md bg-monash-blue px-4 py-2 text-sm font-semibold text-white hover:bg-monash-blue-dark disabled:cursor-not-allowed disabled:bg-slate-400"
             disabled={isSubmitting || !name.trim() || !code.trim()}
             type="submit"
           >
@@ -175,7 +175,7 @@ export function AdminFacultiesPage() {
                       <span
                         className={`rounded-full px-3 py-1 text-xs font-semibold ${
                           faculty.isActive
-                            ? 'bg-emerald-50 text-emerald-700'
+                            ? 'bg-emerald-50 text-monash-blue'
                             : 'bg-rose-50 text-rose-700'
                         }`}
                       >
@@ -209,3 +209,4 @@ export function AdminFacultiesPage() {
     </>
   );
 }
+

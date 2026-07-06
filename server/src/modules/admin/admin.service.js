@@ -671,6 +671,7 @@ export async function getAdminEventDetail(eventId) {
   const event = await prisma.event.findUnique({
     where: { id: eventId },
     include: {
+      summary: true,
       eventFaculties: {
         include: {
           faculty: {
@@ -765,6 +766,8 @@ export async function getAdminEventDetail(eventId) {
       startAt: event.startAt,
       scheduledEndAt: event.scheduledEndAt,
       endAt: event.endAt,
+      summaryGeneratedAt: event.summaryGeneratedAt,
+      detailDeletedAt: event.detailDeletedAt,
     },
     faculties,
     tickets: event.queueTickets.map((ticket) => ({
@@ -777,6 +780,13 @@ export async function getAdminEventDetail(eventId) {
       faculty: ticket.faculty,
     })),
     totals,
+    summary: event.summary
+      ? {
+          id: event.summary.id,
+          data: event.summary.data,
+          createdAt: event.summary.createdAt,
+        }
+      : null,
   };
 }
 

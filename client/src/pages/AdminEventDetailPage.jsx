@@ -5,6 +5,21 @@ import { socket } from '../api/realtimeClient.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
 import { getTicketStatusContent } from '../constants/ticketStatus.js';
 
+function formatAverageWait(seconds) {
+  if (seconds === null || seconds === undefined) {
+    return 'Not available';
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  if (minutes === 0) {
+    return `${remainingSeconds}s`;
+  }
+
+  return `${minutes}m ${String(remainingSeconds).padStart(2, '0')}s`;
+}
+
 export function AdminEventDetailPage() {
   const { eventId } = useParams();
   const { session } = useOutletContext();
@@ -88,6 +103,7 @@ export function AdminEventDetailPage() {
 
   const event = detail?.event;
   const faculties = detail?.faculties || [];
+  const summary = detail?.summary?.data || null;
   const tickets = detail?.tickets || [];
   const totals = detail?.totals || {
     waiting: 0,
@@ -116,6 +132,11 @@ export function AdminEventDetailPage() {
             Scheduled end {new Date(event.scheduledEndAt).toLocaleString()}
           </p>
         )}
+        {event?.detailDeletedAt && (
+          <p className="mt-1 text-xs text-slate-500">
+            Detailed queue data deleted {new Date(event.detailDeletedAt).toLocaleString()}
+          </p>
+        )}
         {lastUpdatedAt && (
           <p className="mt-1 text-xs text-slate-500">
             Last updated {lastUpdatedAt.toLocaleTimeString()}
@@ -124,6 +145,83 @@ export function AdminEventDetailPage() {
       </header>
 
       <AlertMessage message={error} />
+
+      {summary && (
+        <section className="mb-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Summary</p>
+              <h2 className="mt-1 text-xl font-semibold text-slate-950">
+                Final event snapshot
+              </h2>
+            </div>
+            <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+              Generated
+            </span>
+          </div>
+
+          <dl className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-md bg-slate-50 p-4">
+              <dt className="text-sm font-medium text-slate-500">Total tickets</dt>
+              <dd className="mt-1 text-2xl font-semibold text-slate-950">
+                {summary.overall.totalTickets}
+              </dd>
+            </div>
+            <div className="rounded-md bg-slate-50 p-4">
+              <dt className="text-sm font-medium text-slate-500">Done</dt>
+              <dd className="mt-1 text-2xl font-semibold text-slate-950">
+                {summary.overall.done}
+              </dd>
+            </div>
+            <div className="rounded-md bg-slate-50 p-4">
+              <dt className="text-sm font-medium text-slate-500">Skipped / Cancelled</dt>
+              <dd className="mt-1 text-2xl font-semibold text-slate-950">
+                {summary.overall.skipped} / {summary.overall.cancelled}
+              </dd>
+            </div>
+            <div className="rounded-md bg-slate-50 p-4">
+              <dt className="text-sm font-medium text-slate-500">Avg wait</dt>
+              <dd className="mt-1 text-2xl font-semibold text-slate-950">
+                {formatAverageWait(summary.overall.averageWaitSeconds)}
+              </dd>
+            </div>
+          </dl>
+
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full min-w-[880px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-500">
+                  <th className="py-3 pr-4 font-semibold">Faculty</th>
+                  <th className="px-4 py-3 text-right font-semibold">Total</th>
+                  <th className="px-4 py-3 text-right font-semibold">Done</th>
+                  <th className="px-4 py-3 text-right font-semibold">Skipped</th>
+                  <th className="px-4 py-3 text-right font-semibold">Cancelled</th>
+                  <th className="pl-4 py-3 text-right font-semibold">Avg wait</th>
+                </tr>
+              </thead>
+              <tbody>
+                {summary.faculties.map((faculty) => (
+                  <tr className="border-b border-slate-100 last:border-0" key={faculty.facultyId}>
+                    <td className="py-4 pr-4">
+                      <p className="font-semibold text-slate-950">{faculty.facultyName}</p>
+                      <p className="mt-1 text-xs text-slate-500">{faculty.facultyCode}</p>
+                    </td>
+                    <td className="px-4 py-4 text-right text-slate-700">
+                      {faculty.totalTickets}
+                    </td>
+                    <td className="px-4 py-4 text-right text-slate-700">{faculty.done}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{faculty.skipped}</td>
+                    <td className="px-4 py-4 text-right text-slate-700">{faculty.cancelled}</td>
+                    <td className="pl-4 py-4 text-right text-slate-700">
+                      {formatAverageWait(faculty.averageWaitSeconds)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">

@@ -188,7 +188,7 @@ export function AdminEventDetailPage() {
           </dl>
 
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[880px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[880px] border-collapse text-left text-[15px]">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500">
                   <th className="py-3 pr-4 font-semibold">Faculty</th>
@@ -258,7 +258,7 @@ export function AdminEventDetailPage() {
         </div>
 
         <div className="mt-5 overflow-x-auto">
-          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+          <table className="w-full min-w-[760px] border-collapse text-left text-[15px]">
             <thead>
               <tr className="border-b border-slate-200 text-slate-500">
                 <th className="py-3 pr-4 font-semibold">Faculty</th>
@@ -309,7 +309,7 @@ export function AdminEventDetailPage() {
 
         {tickets.length > 0 ? (
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[720px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[720px] border-collapse text-left text-[15px]">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500">
                   <th className="py-3 pr-4 font-semibold">Ticket</th>

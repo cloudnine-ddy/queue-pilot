@@ -258,23 +258,50 @@ export function AdminEventsPage() {
               </span>
             </div>
             <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {faculties.map((faculty) => (
-                <label
-                  className="flex items-start gap-3 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700"
-                  key={faculty.id}
-                >
-                  <input
-                    checked={selectedFacultyIds.includes(faculty.id)}
-                    className="mt-1"
-                    onChange={() => handleToggleFaculty(faculty.id)}
-                    type="checkbox"
-                  />
-                  <span>
-                    <span className="block font-semibold text-slate-950">{faculty.name}</span>
-                    <span className="mt-1 block text-xs text-slate-500">{faculty.code}</span>
-                  </span>
-                </label>
-              ))}
+              {faculties.map((faculty) => {
+                const isSelected = selectedFacultyIds.includes(faculty.id);
+
+                return (
+                  <button
+                    aria-pressed={isSelected}
+                    className={`min-h-20 rounded-md border px-3 py-3 text-left transition ${
+                      isSelected
+                        ? 'border-monash-blue bg-monash-blue-soft text-monash-ink'
+                        : 'border-slate-200 bg-white text-slate-700 hover:border-monash-blue hover:bg-slate-50'
+                    }`}
+                    key={faculty.id}
+                    onClick={() => handleToggleFaculty(faculty.id)}
+                    type="button"
+                  >
+                    <span className="flex items-start justify-between gap-3">
+                      <span>
+                        <span className="block text-[15px] font-semibold">{faculty.name}</span>
+                        <span className="mt-1 block text-sm text-slate-500">{faculty.code}</span>
+                      </span>
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+                          isSelected
+                            ? 'border-monash-blue bg-monash-blue text-white'
+                            : 'border-slate-300 bg-white text-transparent'
+                        }`}
+                      >
+                        <svg
+                          aria-hidden="true"
+                          className="h-3.5 w-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="3"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="m5 12 4 4L19 6" />
+                        </svg>
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </form>
@@ -295,7 +322,7 @@ export function AdminEventsPage() {
 
         {events.length > 0 ? (
           <div className="mt-5 overflow-x-auto">
-            <table className="w-full min-w-[900px] border-collapse text-left text-sm">
+            <table className="w-full min-w-[900px] border-collapse text-left text-[15px]">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-500">
                   <th className="py-3 pr-4 font-semibold">Event</th>

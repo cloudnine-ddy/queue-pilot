@@ -49,6 +49,15 @@ function NavIcon({ name }) {
         <path d="M16 3.1a4 4 0 0 1 0 7.8" />
       </>
     ),
+    chevronLeft: <path d="m15 18-6-6 6-6" />,
+    chevronRight: <path d="m9 18 6-6-6-6" />,
+    signOut: (
+      <>
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+        <path d="M16 17l5-5-5-5" />
+        <path d="M21 12H9" />
+      </>
+    ),
   };
 
   return (
@@ -127,7 +136,11 @@ export function AdminLayout() {
           }`}
         >
           <div className="flex h-full flex-col px-3 py-4">
-            <div className="flex items-center justify-between gap-2">
+            <div
+              className={`flex items-center gap-2 ${
+                isCollapsed ? 'justify-center' : 'justify-between'
+              }`}
+            >
               {!isCollapsed && (
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-monash-blue">
@@ -139,11 +152,12 @@ export function AdminLayout() {
                 </div>
               )}
               <button
-                className="rounded-md border border-slate-200 px-2 py-1 text-sm font-semibold text-slate-700 hover:border-monash-blue hover:text-monash-blue"
+                aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                className="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-slate-700 hover:border-monash-blue hover:text-monash-blue"
                 onClick={() => setIsCollapsed((value) => !value)}
                 type="button"
               >
-                {isCollapsed ? '>' : '<'}
+                <NavIcon name={isCollapsed ? 'chevronRight' : 'chevronLeft'} />
               </button>
             </div>
 
@@ -151,7 +165,7 @@ export function AdminLayout() {
               {navItems.map((item) => (
                 <NavLink
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-semibold ${
+                    `flex items-center gap-3 rounded-md px-3 py-2.5 text-[15px] font-semibold ${
                       isActive
                         ? 'bg-monash-blue text-white'
                         : 'text-slate-700 hover:bg-monash-blue-soft hover:text-monash-blue'
@@ -175,11 +189,15 @@ export function AdminLayout() {
                 </p>
               )}
               <button
-                className="brand-button-secondary w-full px-3"
+                aria-label="Sign out"
+                className={`brand-button-secondary flex w-full items-center justify-center gap-2 px-3 ${
+                  isCollapsed ? 'py-2.5' : ''
+                }`}
                 onClick={handleSignOut}
                 type="button"
               >
-                {isCollapsed ? 'Out' : 'Sign out'}
+                <NavIcon name="signOut" />
+                {!isCollapsed && <span>Sign out</span>}
               </button>
             </div>
           </div>

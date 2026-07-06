@@ -72,7 +72,7 @@
   }
 
   .brand-button-secondary {
-    @apply rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 hover:border-monash-blue hover:text-monash-blue disabled:cursor-not-allowed disabled:text-slate-400;
+    @apply rounded-md border border-slate-300 bg-white px-4 py-2 text-[15px] font-semibold text-slate-700 hover:border-monash-blue hover:text-monash-blue disabled:cursor-not-allowed disabled:text-slate-400;
   }
 
   .brand-input {

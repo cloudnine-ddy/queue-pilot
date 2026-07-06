@@ -10,6 +10,7 @@ import {
 import { getActiveEvent } from '../api/publicApi.js';
 import { socket } from '../api/realtimeClient.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
+import { ConfirmDialog } from '../components/ConfirmDialog.jsx';
 import { OperatorCallPanel } from '../components/OperatorCallPanel.jsx';
 import { operatorSessionKey } from './OperatorLoginPage.jsx';
 
@@ -55,6 +56,7 @@ export function OperatorQueuePage() {
   const [notice, setNotice] = useState('');
   const [pendingAction, setPendingAction] = useState('');
   const [pendingTicketId, setPendingTicketId] = useState('');
+  const [ticketToSkip, setTicketToSkip] = useState(null);
   const [queueAccessError, setQueueAccessError] = useState('');
   const [error, setError] = useState('');
 
@@ -206,14 +208,8 @@ export function OperatorQueuePage() {
     }
   }
 
-  async function handleSkipTicket(ticket) {
+  async function handleSkipTicket(ticket = ticketToSkip) {
     if (!ticket?.id || !session?.token || !event?.id) {
-      return;
-    }
-
-    const confirmed = window.confirm(`Skip ticket ${ticket.ticketNumber}?`);
-
-    if (!confirmed) {
       return;
     }
 
@@ -228,6 +224,7 @@ export function OperatorQueuePage() {
       const called = await getCalledTickets(event.id, session.token);
 
       setCalledTickets(called);
+      setTicketToSkip(null);
       setNotice(`${ticket.ticketNumber} skipped.`);
     } catch (skipError) {
       setError(skipError.message);
@@ -280,6 +277,11 @@ export function OperatorQueuePage() {
               Sign out
             </button>
           </div>
+          {event?.scheduledEndAt && (
+            <p className="mt-3 text-sm text-slate-500">
+              Scheduled end {new Date(event.scheduledEndAt).toLocaleString()}
+            </p>
+          )}
         </header>
 
         {error && !event ? (
@@ -308,10 +310,23 @@ export function OperatorQueuePage() {
               isSubmitting={isSubmitting}
               onCallNext={handleCallNext}
               onComplete={handleCompleteTicket}
-              onSkip={handleSkipTicket}
+              onSkip={setTicketToSkip}
               pendingAction={pendingAction}
               pendingTicketId={pendingTicketId}
               waitingTickets={waitingTickets}
+            />
+            <ConfirmDialog
+              confirmLabel="Skip ticket"
+              intent="danger"
+              isOpen={Boolean(ticketToSkip)}
+              message={
+                ticketToSkip
+                  ? `${ticketToSkip.ticketNumber} will be marked as skipped. The parent will see the updated status.`
+                  : ''
+              }
+              onCancel={() => setTicketToSkip(null)}
+              onConfirm={() => handleSkipTicket()}
+              title="Skip this ticket?"
             />
           </>
         )}

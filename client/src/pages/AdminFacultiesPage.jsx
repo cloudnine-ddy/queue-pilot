@@ -6,6 +6,7 @@ import {
   updateFaculty,
 } from '../api/adminApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
+import { ConfirmDialog } from '../components/ConfirmDialog.jsx';
 
 export function AdminFacultiesPage() {
   const { session } = useOutletContext();
@@ -14,6 +15,7 @@ export function AdminFacultiesPage() {
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [facultyToToggle, setFacultyToToggle] = useState(null);
   const [error, setError] = useState('');
 
   async function loadFaculties() {
@@ -56,17 +58,10 @@ export function AdminFacultiesPage() {
   }
 
   async function handleToggleFaculty(faculty) {
-    if (faculty.isActive) {
-      const confirmed = window.confirm(`Delete ${faculty.name} from the visible faculty list?`);
-
-      if (!confirmed) {
-        return;
-      }
-    }
-
     try {
       setError('');
       await updateFaculty(faculty.id, { isActive: !faculty.isActive }, session.token);
+      setFacultyToToggle(null);
       await loadFaculties();
     } catch (updateError) {
       setError(updateError.message);
@@ -189,7 +184,11 @@ export function AdminFacultiesPage() {
                             ? 'border-rose-200 text-rose-700 hover:bg-rose-50'
                             : 'border-slate-300 text-slate-700 hover:bg-slate-100'
                         }`}
-                        onClick={() => handleToggleFaculty(faculty)}
+                        onClick={() =>
+                          faculty.isActive
+                            ? setFacultyToToggle(faculty)
+                            : handleToggleFaculty(faculty)
+                        }
                         type="button"
                       >
                         {faculty.isActive ? 'Delete' : 'Restore'}
@@ -206,6 +205,20 @@ export function AdminFacultiesPage() {
           </p>
         )}
       </section>
+
+      <ConfirmDialog
+        confirmLabel="Delete"
+        intent="danger"
+        isOpen={Boolean(facultyToToggle)}
+        message={
+          facultyToToggle
+            ? `${facultyToToggle.name} will be hidden from future event setup. Existing event data will stay in the database.`
+            : ''
+        }
+        onCancel={() => setFacultyToToggle(null)}
+        onConfirm={() => handleToggleFaculty(facultyToToggle)}
+        title="Delete from visible list?"
+      />
     </>
   );
 }

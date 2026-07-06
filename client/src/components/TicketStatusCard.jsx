@@ -32,6 +32,9 @@ export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket })
           <p className="mt-2 text-6xl font-semibold tracking-normal text-monash-ink">
             {ticket.ticketNumber}
           </p>
+          <p className="mt-2 text-[15px] text-slate-600">
+            {ticket.event?.name ? ticket.event.name : 'Current event'}
+          </p>
         </div>
         <span className={`w-fit rounded-full px-3 py-1 text-sm font-medium ${content.badgeClass}`}>
           {content.label}
@@ -48,6 +51,12 @@ export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket })
           <dd className="mt-1 text-2xl font-semibold text-monash-ink">{ticket.peopleAhead}</dd>
         </div>
       </dl>
+
+      {ticket.status === 'WAITING' && (
+        <div className="mt-5 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-900">
+          You are in the queue. This page updates automatically, but you can refresh manually if needed.
+        </div>
+      )}
 
       {ticket.status === 'CALLED' && (
         <div className="mt-5 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-900">

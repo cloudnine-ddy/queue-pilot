@@ -1,54 +1,193 @@
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useOutletContext } from 'react-router-dom';
+import { getAdminOverview } from '../api/adminApi.js';
+import { AlertMessage } from '../components/AlertMessage.jsx';
 
 const quickLinks = [
   {
-    description: 'Create events, start active queues and review event summaries.',
+    description: 'Create events, start queues and review completed event summaries.',
     label: 'Manage events',
     to: '/admin/events',
   },
   {
-    description: 'Maintain the master list of faculties available for event queues.',
+    description: 'Maintain the visible faculty list used when setting up events.',
     label: 'Faculty list',
     to: '/admin/faculties',
   },
   {
-    description: 'Create and update operator accounts for live queue calling.',
+    description: 'Create and update accounts that can operate live queues.',
     label: 'Operators',
     to: '/admin/operators',
   },
 ];
 
+function MetricCard({ label, value }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="text-sm font-medium text-slate-500">{label}</p>
+      <p className="mt-2 text-3xl font-semibold text-slate-950">{value}</p>
+    </div>
+  );
+}
+
 export function AdminDashboardPage() {
+  const { session } = useOutletContext();
+  const [overview, setOverview] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    async function loadOverview() {
+      try {
+        setIsLoading(true);
+        setError('');
+        const overviewData = await getAdminOverview(session.token);
+        setOverview(overviewData);
+      } catch (loadError) {
+        setError(loadError.message);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadOverview();
+  }, [session.token]);
+
+  const event = overview?.event || null;
+  const faculties = overview?.faculties || [];
+  const totals = overview?.totals || {
+    called: 0,
+    cancelled: 0,
+    done: 0,
+    skipped: 0,
+    total: 0,
+    waiting: 0,
+  };
+
+  if (isLoading) {
+    return <p className="text-sm font-medium text-slate-600">Loading dashboard...</p>;
+  }
+
   return (
     <>
       <header className="mb-8 border-b border-slate-200 pb-5">
         <p className="brand-kicker">Admin</p>
-        <h1 className="brand-title">
-          Dashboard
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Start from the operational area you need. Event analytics will appear here after the
-          reporting view is expanded.
+        <h1 className="brand-title">Dashboard</h1>
+        <p className="mt-3 max-w-2xl text-[15px] leading-6 text-slate-600">
+          Monitor the active event and jump into the main admin workflows.
         </p>
       </header>
 
-      <section className="grid gap-4 lg:grid-cols-3">
+      <AlertMessage message={error} />
+
+      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500">Active event</p>
+            <h2 className="mt-1 text-2xl font-semibold text-slate-950">
+              {event ? event.name : 'No active event'}
+            </h2>
+            <p className="mt-2 text-[15px] leading-6 text-slate-600">
+              {event
+                ? `Started ${new Date(event.startAt).toLocaleString()}`
+                : 'Start an upcoming event when the queue is ready to open.'}
+            </p>
+            {event?.scheduledEndAt && (
+              <p className="mt-1 text-sm text-slate-500">
+                Scheduled end {new Date(event.scheduledEndAt).toLocaleString()}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            {event && (
+              <Link
+                className="inline-flex justify-center rounded-md bg-monash-blue px-4 py-2 text-sm font-semibold text-white hover:bg-monash-blue-dark"
+                to={`/admin/events/${event.id}`}
+              >
+                View active queue
+              </Link>
+            )}
+            <Link
+              className="inline-flex justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              to="/admin/events"
+            >
+              Manage events
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <MetricCard label="Total" value={totals.total} />
+        <MetricCard label="Waiting" value={totals.waiting} />
+        <MetricCard label="Called" value={totals.called} />
+        <MetricCard label="Done" value={totals.done} />
+        <MetricCard label="Skipped / Cancelled" value={`${totals.skipped} / ${totals.cancelled}`} />
+      </section>
+
+      <section className="mt-6 grid gap-4 lg:grid-cols-3">
         {quickLinks.map((link) => (
           <Link
-            className="brand-card block p-5 hover:border-monash-blue hover:shadow-md"
+            className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-monash-blue hover:shadow-md"
             key={link.to}
             to={link.to}
           >
             <p className="text-lg font-semibold text-monash-ink">{link.label}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{link.description}</p>
+            <p className="mt-2 text-[15px] leading-6 text-slate-600">{link.description}</p>
           </Link>
         ))}
       </section>
 
-      <section className="mt-6 rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center">
-        <p className="text-sm font-medium text-slate-500">Live metrics reserved for the next reporting pass.</p>
+      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="text-sm font-medium text-slate-500">Live queues</p>
+            <h2 className="mt-1 text-xl font-semibold text-slate-950">Faculty status</h2>
+          </div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+            {faculties.length} faculties
+          </span>
+        </div>
+
+        {faculties.length > 0 ? (
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full min-w-[760px] border-collapse text-left text-[15px]">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-500">
+                  <th className="py-3 pr-4 font-semibold">Faculty</th>
+                  <th className="px-4 py-3 font-semibold">Operator</th>
+                  <th className="px-4 py-3 text-right font-semibold">Waiting</th>
+                  <th className="px-4 py-3 text-right font-semibold">Called</th>
+                  <th className="pl-4 py-3 text-right font-semibold">Done</th>
+                </tr>
+              </thead>
+              <tbody>
+                {faculties.map((faculty) => (
+                  <tr className="border-b border-slate-100 last:border-0" key={faculty.id}>
+                    <td className="py-4 pr-4">
+                      <p className="font-semibold text-slate-950">{faculty.name}</p>
+                      <p className="mt-1 text-sm text-slate-500">{faculty.code}</p>
+                    </td>
+                    <td className="px-4 py-4 text-slate-700">
+                      {faculty.operator ? faculty.operator.name : 'Unassigned'}
+                    </td>
+                    <td className="px-4 py-4 text-right font-semibold text-slate-950">
+                      {faculty.queue.waiting}
+                    </td>
+                    <td className="px-4 py-4 text-right text-slate-700">{faculty.queue.called}</td>
+                    <td className="pl-4 py-4 text-right text-slate-700">{faculty.queue.done}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="mt-5 rounded-md bg-slate-50 px-4 py-3 text-[15px] text-slate-600">
+            No active queue data is available.
+          </p>
+        )}
       </section>
     </>
   );
 }
-

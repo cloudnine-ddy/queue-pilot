@@ -15,6 +15,7 @@ export function OperatorCallPanel({
   const [now, setNow] = useState(() => Date.now());
   const hasActiveCalls = calledTickets.length > 0;
   const canCallNext = !isSubmitting && waitingTickets.length > 0;
+  const nextTicket = waitingTickets[0] || null;
 
   useEffect(() => {
     if (!hasActiveCalls) {
@@ -40,7 +41,7 @@ export function OperatorCallPanel({
   return (
     <section className="brand-card p-5">
       <form onSubmit={onCallNext}>
-        <div className="grid gap-4 md:grid-cols-[1fr_auto] md:items-center">
+        <div className="grid gap-4 lg:grid-cols-[1fr_1fr_auto] lg:items-stretch">
           <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
             <p className="text-sm font-medium text-slate-500">Faculty queue</p>
             <p className="mt-1 text-base font-semibold text-monash-ink">{faculty.name}</p>
@@ -49,8 +50,18 @@ export function OperatorCallPanel({
             </p>
           </div>
 
+          <div className="rounded-md border border-monash-blue/20 bg-monash-blue-soft p-4">
+            <p className="text-sm font-medium text-monash-blue">Next waiting</p>
+            <p className="mt-1 text-3xl font-semibold text-monash-ink">
+              {nextTicket ? nextTicket.ticketNumber : '-'}
+            </p>
+            <p className="mt-2 text-sm text-slate-600">
+              {nextTicket ? 'This ticket will be called next.' : 'No tickets are waiting.'}
+            </p>
+          </div>
+
           <button
-            className="brand-button-primary min-h-16 w-full px-8 text-base md:w-56"
+            className="brand-button-primary min-h-16 w-full px-8 text-base lg:w-56"
             disabled={!canCallNext}
             type="submit"
           >
@@ -71,7 +82,7 @@ export function OperatorCallPanel({
           <div className="mt-4 grid gap-3 lg:grid-cols-2">
             {calledTickets.map((ticket) => (
               <div
-                className="rounded-md border border-slate-200 bg-white p-4"
+                className="rounded-md border border-monash-blue/20 bg-white p-4 shadow-sm"
                 key={ticket.id}
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -79,7 +90,7 @@ export function OperatorCallPanel({
                     <p className="text-4xl font-semibold text-monash-ink">
                       {ticket.ticketNumber}
                     </p>
-                    <p className="mt-1 text-sm font-medium text-slate-600">
+                    <p className="mt-1 text-base font-semibold text-monash-blue">
                       Called for {formatElapsedTime(ticket.calledAt, now)}
                     </p>
                   </div>
@@ -128,13 +139,17 @@ export function OperatorCallPanel({
 
         {waitingTickets.length > 0 ? (
           <ol className="mt-4 divide-y divide-slate-200 rounded-md border border-slate-200">
-            {waitingTickets.map((ticket) => (
+            {waitingTickets.map((ticket, index) => (
               <li
-                className="flex items-center justify-between gap-4 px-4 py-3"
+                className={`flex items-center justify-between gap-4 px-4 py-3 ${
+                  index === 0 ? 'bg-monash-blue-soft' : 'bg-white'
+                }`}
                 key={ticket.id}
               >
                 <span className="font-semibold text-slate-950">{ticket.ticketNumber}</span>
-                <span className="text-sm text-slate-500">{ticket.status}</span>
+                <span className="text-sm text-slate-500">
+                  {index === 0 ? 'Next' : ticket.status}
+                </span>
               </li>
             ))}
           </ol>

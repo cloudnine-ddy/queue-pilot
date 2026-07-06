@@ -6,6 +6,7 @@ import {
 } from '../api/publicApi.js';
 import { socket } from '../api/realtimeClient.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
+import { ConfirmDialog } from '../components/ConfirmDialog.jsx';
 import { TicketStatusCard } from '../components/TicketStatusCard.jsx';
 import { isActiveTicketStatus } from '../constants/ticketStatus.js';
 
@@ -16,6 +17,7 @@ export function TicketStatusPage() {
   const [ticket, setTicket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAbandonDialogOpen, setIsAbandonDialogOpen] = useState(false);
   const [error, setError] = useState('');
 
   async function loadTicket() {
@@ -105,17 +107,12 @@ export function TicketStatusPage() {
       return;
     }
 
-    const confirmed = window.confirm(`Abandon ticket ${ticket.ticketNumber}?`);
-
-    if (!confirmed) {
-      return;
-    }
-
     try {
       setIsSubmitting(true);
       setError('');
       const abandonedTicket = await abandonTicket(ticket.token);
       localStorage.removeItem(ticketTokenKey);
+      setIsAbandonDialogOpen(false);
       setTicket(abandonedTicket);
     } catch (abandonError) {
       setError(abandonError.message);
@@ -152,7 +149,7 @@ export function TicketStatusPage() {
         {ticket ? (
           <TicketStatusCard
             isSubmitting={isSubmitting}
-            onAbandon={handleAbandonTicket}
+            onAbandon={() => setIsAbandonDialogOpen(true)}
             onRefresh={handleRefreshTicket}
             ticket={ticket}
           />
@@ -167,6 +164,20 @@ export function TicketStatusPage() {
             </Link>
           </section>
         )}
+
+        <ConfirmDialog
+          confirmLabel="Abandon ticket"
+          intent="danger"
+          isOpen={isAbandonDialogOpen}
+          message={
+            ticket
+              ? `${ticket.ticketNumber} will be cancelled and removed from the active queue.`
+              : ''
+          }
+          onCancel={() => setIsAbandonDialogOpen(false)}
+          onConfirm={handleAbandonTicket}
+          title="Abandon this ticket?"
+        />
       </div>
     </main>
   );

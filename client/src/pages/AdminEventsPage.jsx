@@ -8,6 +8,7 @@ import {
   startEvent,
 } from '../api/adminApi.js';
 import { AlertMessage } from '../components/AlertMessage.jsx';
+import { ConfirmDialog } from '../components/ConfirmDialog.jsx';
 
 function toDateTimeLocalValue(date) {
   const offsetMs = date.getTimezoneOffset() * 60 * 1000;
@@ -22,8 +23,10 @@ export function AdminEventsPage() {
   const [startAt, setStartAt] = useState(() => toDateTimeLocalValue(new Date()));
   const [scheduledEndAt, setScheduledEndAt] = useState('');
   const [selectedFacultyIds, setSelectedFacultyIds] = useState([]);
+  const [statusFilter, setStatusFilter] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [eventToEnd, setEventToEnd] = useState(null);
   const [error, setError] = useState('');
 
   async function loadEventsPage() {
@@ -91,16 +94,15 @@ export function AdminEventsPage() {
     }
   }
 
-  async function handleEndEvent(event) {
-    const confirmed = window.confirm(`End ${event.name}?`);
-
-    if (!confirmed) {
+  async function handleEndEvent() {
+    if (!eventToEnd) {
       return;
     }
 
     try {
       setError('');
-      await endEvent(event.id, session.token);
+      await endEvent(eventToEnd.id, session.token);
+      setEventToEnd(null);
       await loadEventsPage();
     } catch (endError) {
       setError(endError.message);
@@ -118,6 +120,10 @@ export function AdminEventsPage() {
   const activeEvent = events.find((event) => event.status === 'ACTIVE');
   const upcomingCount = events.filter((event) => event.status === 'UPCOMING').length;
   const endedCount = events.filter((event) => event.status === 'ENDED').length;
+  const filteredEvents =
+    statusFilter === 'ALL'
+      ? events
+      : events.filter((event) => event.status === statusFilter);
 
   if (isLoading) {
     return <p className="text-sm font-medium text-slate-600">Loading events...</p>;
@@ -132,6 +138,9 @@ export function AdminEventsPage() {
         <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
           Events
         </h1>
+        <p className="mt-3 max-w-2xl text-[15px] leading-6 text-slate-600">
+          Prepare upcoming events, monitor the active event and open summaries for completed events.
+        </p>
       </header>
 
       <AlertMessage message={error} />
@@ -165,7 +174,7 @@ export function AdminEventsPage() {
               </Link>
               <button
                 className="rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50"
-                onClick={() => handleEndEvent(activeEvent)}
+                onClick={() => setEventToEnd(activeEvent)}
                 type="button"
               >
                 End event
@@ -315,12 +324,28 @@ export function AdminEventsPage() {
               Scheduled and past events
             </h2>
           </div>
-          <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
-            {upcomingCount} upcoming / {endedCount} ended
-          </span>
+          <div className="flex flex-wrap justify-end gap-2">
+            {['ALL', 'ACTIVE', 'UPCOMING', 'ENDED'].map((status) => (
+              <button
+                className={`rounded-md border px-3 py-2 text-sm font-semibold ${
+                  statusFilter === status
+                    ? 'border-monash-blue bg-monash-blue text-white'
+                    : 'border-slate-300 bg-white text-slate-700 hover:border-monash-blue hover:text-monash-blue'
+                }`}
+                key={status}
+                onClick={() => setStatusFilter(status)}
+                type="button"
+              >
+                {status === 'ALL' ? 'All' : status}
+              </button>
+            ))}
+          </div>
         </div>
+        <p className="mt-3 text-sm text-slate-500">
+          {upcomingCount} upcoming / {endedCount} ended
+        </p>
 
-        {events.length > 0 ? (
+        {filteredEvents.length > 0 ? (
           <div className="mt-5 overflow-x-auto">
             <table className="w-full min-w-[900px] border-collapse text-left text-[15px]">
               <thead>
@@ -335,7 +360,7 @@ export function AdminEventsPage() {
                 </tr>
               </thead>
               <tbody>
-                {events.map((event) => (
+                {filteredEvents.map((event) => (
                   <tr className="border-b border-slate-100 last:border-0" key={event.id}>
                     <td className="py-4 pr-4 font-semibold text-slate-950">
                       {event.name}
@@ -364,7 +389,7 @@ export function AdminEventsPage() {
                         className="mr-2 inline-flex rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
                         to={`/admin/events/${event.id}`}
                       >
-                        View
+                        {event.status === 'ENDED' ? 'Summary' : 'View'}
                       </Link>
                       {event.status === 'UPCOMING' && (
                         <button
@@ -389,10 +414,24 @@ export function AdminEventsPage() {
           </div>
         ) : (
           <p className="mt-5 rounded-md bg-slate-50 px-4 py-3 text-sm text-slate-600">
-            No events found.
+            No events match this filter.
           </p>
         )}
       </section>
+
+      <ConfirmDialog
+        confirmLabel="End event"
+        intent="danger"
+        isOpen={Boolean(eventToEnd)}
+        message={
+          eventToEnd
+            ? `${eventToEnd.name} will be ended now and its summary will be generated.`
+            : ''
+        }
+        onCancel={() => setEventToEnd(null)}
+        onConfirm={handleEndEvent}
+        title="End this event?"
+      />
     </>
   );
 }

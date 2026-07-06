@@ -34,18 +34,34 @@ model Faculty {
 }
 
 model Event {
-  id        String      @id @default(cuid())
-  name      String
-  status    EventStatus @default(UPCOMING)
-  startAt   DateTime    @map("start_at")
-  endAt     DateTime?   @map("end_at")
-  createdAt DateTime    @default(now()) @map("created_at")
+  id                 String      @id @default(cuid())
+  name               String
+  status             EventStatus @default(UPCOMING)
+  startAt            DateTime    @map("start_at")
+  scheduledEndAt     DateTime?   @map("scheduled_end_at")
+  endAt              DateTime?   @map("end_at")
+  summaryGeneratedAt DateTime?   @map("summary_generated_at")
+  detailDeletedAt    DateTime?   @map("detail_deleted_at")
+  createdAt          DateTime    @default(now()) @map("created_at")
 
   eventFaculties EventFaculty[]
   queueTickets   QueueTicket[]
+  summary        EventSummary?
 
   @@index([status])
+  @@index([scheduledEndAt])
   @@map("events")
+}
+
+model EventSummary {
+  id        String   @id @default(cuid())
+  eventId   String   @unique @map("event_id")
+  data      Json
+  createdAt DateTime @default(now()) @map("created_at")
+
+  event Event @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@map("event_summaries")
 }
 
 model EventFaculty {

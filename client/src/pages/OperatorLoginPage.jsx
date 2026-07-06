@@ -30,26 +30,32 @@ export function OperatorLoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
-      <div className="mx-auto max-w-md">
-        <header className="mb-8 border-b border-slate-200 pb-5">
-          <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-            Operator
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
-            Sign in
+    <main className="brand-page flex items-center">
+      <div className="mx-auto grid w-full max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
+        <section className="hidden lg:block">
+          <p className="brand-kicker">Monash Queue Pilot</p>
+          <h1 className="mt-3 max-w-xl text-4xl font-semibold tracking-normal text-monash-ink">
+            Operator console for live queue calling.
           </h1>
-        </header>
+          <p className="mt-4 max-w-lg text-sm leading-6 text-slate-600">
+            Call the next number, monitor active calls and keep the faculty queue moving.
+          </p>
+        </section>
 
-        <AlertMessage message={error} />
+        <section className="brand-card p-6">
+          <header className="mb-6 border-b border-slate-200 pb-5">
+            <p className="brand-kicker">Operator</p>
+            <h1 className="brand-title">Sign in</h1>
+          </header>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <AlertMessage message={error} />
+
           <form onSubmit={handleSubmit}>
             <label className="block text-sm font-medium text-slate-700" htmlFor="email">
               Email
             </label>
             <input
-              className="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="brand-input mt-2 w-full"
               id="email"
               onChange={(event) => setEmail(event.target.value)}
               type="email"
@@ -60,7 +66,7 @@ export function OperatorLoginPage() {
               Password
             </label>
             <input
-              className="mt-2 w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-950 outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+              className="brand-input mt-2 w-full"
               id="password"
               onChange={(event) => setPassword(event.target.value)}
               type="password"
@@ -68,7 +74,7 @@ export function OperatorLoginPage() {
             />
 
             <button
-              className="mt-6 w-full rounded-md bg-slate-950 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+              className="brand-button-primary mt-6 w-full"
               disabled={isSubmitting}
               type="submit"
             >

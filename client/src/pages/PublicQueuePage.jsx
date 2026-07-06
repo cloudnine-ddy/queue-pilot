@@ -84,7 +84,7 @@ export function PublicQueuePage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
+      <main className="brand-page">
         <div className="mx-auto flex min-h-[70vh] max-w-3xl items-center justify-center">
           <p className="text-sm font-medium text-slate-600">Loading queue...</p>
         </div>
@@ -93,15 +93,17 @@ export function PublicQueuePage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-8 border-b border-slate-200 pb-5">
-          <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-            Queue Pilot
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
+    <main className="brand-page">
+      <div className="brand-shell max-w-3xl">
+        <header className="mb-8 border-b border-slate-200 pb-6">
+          <p className="brand-kicker">Monash Queue Pilot</p>
+          <h1 className="brand-title">
             {event?.name || 'Queue'}
           </h1>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+            Select the faculty queue you need. Your ticket status will update automatically after
+            you take a number.
+          </p>
         </header>
 
         <AlertMessage message={error} />

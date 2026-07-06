@@ -126,7 +126,7 @@ export function TicketStatusPage() {
 
   if (isLoading) {
     return (
-      <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
+      <main className="brand-page">
         <div className="mx-auto flex min-h-[70vh] max-w-3xl items-center justify-center">
           <p className="text-sm font-medium text-slate-600">Loading ticket...</p>
         </div>
@@ -135,15 +135,16 @@ export function TicketStatusPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-5 py-8 text-slate-950">
-      <div className="mx-auto max-w-3xl">
-        <header className="mb-8 border-b border-slate-200 pb-5">
-          <p className="text-sm font-semibold uppercase tracking-wide text-emerald-700">
-            Queue Pilot
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-normal text-slate-950">
+    <main className="brand-page">
+      <div className="brand-shell max-w-3xl">
+        <header className="mb-8 border-b border-slate-200 pb-6">
+          <p className="brand-kicker">Monash Queue Pilot</p>
+          <h1 className="brand-title">
             Ticket status
           </h1>
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Keep this page open. Your status will update when the queue changes.
+          </p>
         </header>
 
         <AlertMessage message={error} />
@@ -156,10 +157,10 @@ export function TicketStatusPage() {
             ticket={ticket}
           />
         ) : (
-          <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <section className="brand-card p-5">
             <p className="text-sm text-slate-600">Ticket could not be loaded.</p>
             <Link
-              className="mt-5 inline-flex rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"
+              className="brand-button-primary mt-5 inline-flex py-2"
               to="/"
             >
               Back to queue

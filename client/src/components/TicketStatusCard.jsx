@@ -25,11 +25,11 @@ export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket })
   }, [isCalled, ticket.calledAt]);
 
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="brand-card p-5">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-sm font-medium text-slate-500">Your number</p>
-          <p className="mt-2 text-5xl font-semibold tracking-normal text-slate-950">
+          <p className="mt-2 text-6xl font-semibold tracking-normal text-monash-ink">
             {ticket.ticketNumber}
           </p>
         </div>
@@ -41,11 +41,11 @@ export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket })
       <dl className="mt-6 grid gap-4 sm:grid-cols-2">
         <div className="rounded-md bg-slate-50 p-4">
           <dt className="text-sm font-medium text-slate-500">Faculty</dt>
-          <dd className="mt-1 text-base font-semibold text-slate-950">{ticket.faculty.name}</dd>
+          <dd className="mt-1 text-base font-semibold text-monash-ink">{ticket.faculty.name}</dd>
         </div>
         <div className="rounded-md bg-slate-50 p-4">
           <dt className="text-sm font-medium text-slate-500">People ahead</dt>
-          <dd className="mt-1 text-2xl font-semibold text-slate-950">{ticket.peopleAhead}</dd>
+          <dd className="mt-1 text-2xl font-semibold text-monash-ink">{ticket.peopleAhead}</dd>
         </div>
       </dl>
 
@@ -68,7 +68,7 @@ export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket })
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
         <button
-          className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="brand-button-primary py-2"
           disabled={isSubmitting}
           onClick={onRefresh}
           type="button"
@@ -77,7 +77,7 @@ export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket })
         </button>
         {canAbandon ? (
           <button
-            className="rounded-md border border-rose-200 px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-rose-300"
+            className="rounded-md border border-rose-200 bg-white px-4 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50 disabled:cursor-not-allowed disabled:text-rose-300"
             disabled={isSubmitting}
             onClick={onAbandon}
             type="button"
@@ -86,7 +86,7 @@ export function TicketStatusCard({ isSubmitting, onAbandon, onRefresh, ticket })
           </button>
         ) : (
           <a
-            className="rounded-md border border-slate-300 px-4 py-2 text-center text-sm font-semibold text-slate-800 hover:bg-slate-100"
+            className="brand-button-secondary text-center"
             href="/"
           >
             Back to queue

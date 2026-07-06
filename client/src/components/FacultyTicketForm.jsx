@@ -6,12 +6,12 @@ export function FacultyTicketForm({
   selectedFacultyId,
 }) {
   return (
-    <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <section className="brand-card p-5">
       <form onSubmit={onSubmit}>
         <div className="flex items-center justify-between gap-4">
           <div>
             <p className="text-sm font-medium text-slate-500">Choose a faculty</p>
-            <h2 className="mt-1 text-xl font-semibold text-slate-950">Queue selection</h2>
+            <h2 className="mt-1 text-xl font-semibold text-monash-ink">Queue selection</h2>
           </div>
           <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
             {faculties.length} available
@@ -26,8 +26,8 @@ export function FacultyTicketForm({
               <button
                 className={`min-h-24 rounded-md border px-4 py-3 text-left transition ${
                   isSelected
-                    ? 'border-emerald-600 bg-emerald-50 text-emerald-950'
-                    : 'border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50'
+                    ? 'border-monash-blue bg-monash-blue-soft text-monash-ink shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-800 hover:border-monash-blue hover:bg-slate-50'
                 }`}
                 key={faculty.id}
                 onClick={() => onChangeFaculty(faculty.id)}
@@ -41,7 +41,7 @@ export function FacultyTicketForm({
         </div>
 
         <button
-          className="mt-6 w-full rounded-md bg-emerald-700 px-4 py-3 text-sm font-semibold text-white hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-slate-400"
+          className="brand-button-primary mt-6 w-full"
           disabled={!selectedFacultyId || isSubmitting}
           type="submit"
         >

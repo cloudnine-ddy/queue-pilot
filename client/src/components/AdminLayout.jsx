@@ -34,14 +34,16 @@ export function AdminLayout() {
         const profile = await getAdminProfile(session.token);
         setAdmin(profile);
       } catch (loadError) {
-        setError(loadError.message);
+        clearAdminSession();
+        setSession(null);
+        navigate('/admin/login');
       } finally {
         setIsLoading(false);
       }
     }
 
     loadAdminProfile();
-  }, [session?.token]);
+  }, [navigate, session?.token]);
 
   function handleSignOut() {
     clearAdminSession();

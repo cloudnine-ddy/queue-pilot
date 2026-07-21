@@ -12,9 +12,11 @@ https://github.com/user-attachments/assets/2e98ed46-fd72-4e97-8947-4095a6357049
 
 This 16-second demo shows the complete live flow: a visitor takes a number, the operator receives and calls the ticket, and both interfaces update when the visit is completed.
 
-| Visitor | Operator | Admin |
-| --- | --- | --- |
-| _Screenshot placeholder_ | _Screenshot placeholder_ | _Screenshot placeholder_ |
+### Admin event overview
+
+![Queue Pilot admin event overview showing event totals, faculty queues, and recent tickets](docs/assets/queue-pilot-admin-event-overview.png)
+
+The desktop workspace gives administrators a live overview of event totals, faculty-level queues, assigned operators, and recent ticket activity.
 
 ## Why I built it
 

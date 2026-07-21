@@ -8,18 +8,9 @@ Queue Pilot replaces manual visitor registration and repeated verbal calling wit
 
 ## Demo
 
-> **Video placeholder**<br>
-> A side-by-side Visitor and Operator demo is being prepared. It shows a visitor taking a number, the operator receiving the ticket in real time, the number being called, and both interfaces updating when the visit is completed.
+https://github.com/user-attachments/assets/2e98ed46-fd72-4e97-8947-4095a6357049
 
-<!--
-Replace this block with a linked demo thumbnail or short looping preview.
-Suggested full-demo sequence:
-1. Visitor takes a number.
-2. Operator receives the new ticket.
-3. Operator calls the ticket.
-4. Visitor status changes from Waiting to Called.
-5. Operator completes the ticket and Visitor status changes to Done.
--->
+This 16-second demo shows the complete live flow: a visitor takes a number, the operator receives and calls the ticket, and both interfaces update when the visit is completed.
 
 | Visitor | Operator | Admin |
 | --- | --- | --- |

@@ -128,32 +128,31 @@ export function AdminLayout() {
   }
 
   return (
-    <main className="min-h-screen bg-[#f6f8fb] text-monash-ink">
+    <main className="min-h-screen bg-[#f4f5f8] text-monash-ink">
       <div className="flex min-h-screen">
         <aside
-          className={`sticky top-0 h-screen border-r border-slate-200 bg-white transition-all ${
+          className={`sticky top-0 h-screen bg-white transition-all ${
             isCollapsed ? 'w-20' : 'w-64'
           }`}
         >
-          <div className="flex h-full flex-col px-3 py-4">
+          <div className="flex h-full flex-col px-3 py-5">
             <div
               className={`flex items-center gap-2 ${
                 isCollapsed ? 'justify-center' : 'justify-between'
               }`}
             >
               {!isCollapsed && (
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-monash-blue">
-                    Monash
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-monash-ink">
-                    Queue Pilot
-                  </p>
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-monash-blue text-base font-bold text-white">Q</span>
+                  <div>
+                    <p className="text-sm font-bold text-monash-ink">Queue Pilot</p>
+                    <p className="mt-0.5 text-xs font-medium text-slate-500">Admin workspace</p>
+                  </div>
                 </div>
               )}
               <button
                 aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                className="flex h-9 w-9 items-center justify-center rounded-md border border-slate-200 text-slate-700 hover:border-monash-blue hover:text-monash-blue"
+                className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 hover:bg-monash-blue-soft hover:text-monash-blue"
                 onClick={() => setIsCollapsed((value) => !value)}
                 type="button"
               >
@@ -161,17 +160,17 @@ export function AdminLayout() {
               </button>
             </div>
 
-            <nav className="mt-6 space-y-1">
+            <nav className="mt-8 space-y-2">
               {navItems.map((item) => (
                 <NavLink
                   className={({ isActive }) =>
-                    `flex items-center rounded-md text-[15px] font-semibold ${
+                    `flex items-center rounded-2xl text-[15px] font-semibold ${
                       isCollapsed
-                        ? 'mx-auto h-10 w-10 justify-center px-0 py-0'
-                        : 'gap-3 px-3 py-2.5'
+                        ? 'mx-auto h-11 w-11 justify-center px-0 py-0'
+                        : 'gap-3 px-4 py-3'
                     } ${
                       isActive
-                        ? 'bg-monash-blue text-white'
+                        ? 'bg-monash-blue-soft text-monash-blue'
                         : 'text-slate-700 hover:bg-monash-blue-soft hover:text-monash-blue'
                     }`
                   }
@@ -186,11 +185,12 @@ export function AdminLayout() {
               ))}
             </nav>
 
-            <div className="mt-auto border-t border-slate-200 pt-4">
+            <div className="mt-auto pt-4">
               {!isCollapsed && (
-                <p className="mb-3 text-sm text-slate-600">
-                  <span className="font-semibold text-monash-ink">{admin?.name}</span>
-                </p>
+                <div className="mb-3 rounded-2xl bg-[#f4f5f8] px-4 py-3">
+                  <p className="text-xs font-medium text-slate-500">Signed in as</p>
+                  <p className="mt-1 truncate text-sm font-semibold text-monash-ink">{admin?.name}</p>
+                </div>
               )}
               <button
                 aria-label="Sign out"
@@ -207,8 +207,8 @@ export function AdminLayout() {
           </div>
         </aside>
 
-        <section className="min-w-0 flex-1 px-5 py-8">
-          <div className="mx-auto max-w-6xl">
+        <section className="min-w-0 flex-1 px-5 py-7 lg:px-8">
+          <div className="admin-workspace mx-auto max-w-6xl">
             <AlertMessage message={error} />
             <Outlet context={{ admin, session }} />
           </div>

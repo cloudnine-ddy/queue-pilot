@@ -131,7 +131,7 @@ export function AdminEventsPage() {
 
   return (
     <>
-      <header className="mb-8 border-b border-slate-200 pb-5">
+      <header className="mb-7">
         <p className="text-sm font-semibold uppercase tracking-wide text-monash-blue">
           Admin
         </p>
@@ -145,11 +145,11 @@ export function AdminEventsPage() {
 
       <AlertMessage message={error} />
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="brand-card p-6 sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-500">Current event</p>
-            <h2 className="mt-1 text-xl font-semibold text-slate-950">
+            <p className="section-eyebrow">Current event</p>
+            <h2 className="section-title">
               {activeEvent ? activeEvent.name : 'No active event'}
             </h2>
             <p className="mt-2 text-sm leading-6 text-slate-600">
@@ -207,10 +207,10 @@ export function AdminEventsPage() {
         )}
       </section>
 
-      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="brand-card mt-6 p-6 sm:p-7">
         <div>
-          <p className="text-sm font-medium text-slate-500">Create event</p>
-          <h2 className="mt-1 text-xl font-semibold text-slate-950">
+          <p className="section-eyebrow">Create event</p>
+          <h2 className="section-title">
             Schedule upcoming event
           </h2>
         </div>
@@ -316,11 +316,11 @@ export function AdminEventsPage() {
         </form>
       </section>
 
-      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="brand-card mt-6 p-6 sm:p-7">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-slate-500">Event list</p>
-            <h2 className="mt-1 text-xl font-semibold text-slate-950">
+            <p className="section-eyebrow">Event list</p>
+            <h2 className="section-title">
               Scheduled and past events
             </h2>
           </div>

@@ -179,7 +179,7 @@ export function AdminOperatorsPage() {
 
   return (
     <>
-      <header className="mb-8 border-b border-slate-200 pb-5">
+      <header className="mb-7">
         <p className="text-sm font-semibold uppercase tracking-wide text-monash-blue">
           Admin
         </p>
@@ -190,10 +190,10 @@ export function AdminOperatorsPage() {
 
       <AlertMessage message={error} />
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="brand-card p-6 sm:p-7">
         <div>
-          <p className="text-sm font-medium text-slate-500">Add operator</p>
-          <h2 className="mt-1 text-xl font-semibold text-slate-950">
+          <p className="section-eyebrow">Add operator</p>
+          <h2 className="section-title">
             Operator accounts
           </h2>
         </div>
@@ -262,11 +262,11 @@ export function AdminOperatorsPage() {
         </form>
       </section>
 
-      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="brand-card mt-6 p-6 sm:p-7">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-slate-500">Operators</p>
-            <h2 className="mt-1 text-xl font-semibold text-slate-950">
+            <p className="section-eyebrow">Operators</p>
+            <h2 className="section-title">
               All operator accounts
             </h2>
           </div>
@@ -368,10 +368,10 @@ export function AdminOperatorsPage() {
 
       {resetOperator && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 px-5">
-          <section className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-5 shadow-xl">
+          <section className="w-full max-w-md rounded-[1.75rem] bg-white p-6 shadow-xl">
             <div>
-              <p className="text-sm font-medium text-slate-500">Reset password</p>
-              <h2 className="mt-1 text-xl font-semibold text-slate-950">
+              <p className="section-eyebrow">Reset password</p>
+              <h2 className="section-title">
                 {resetOperator.name}
               </h2>
               <p className="mt-2 text-sm text-slate-600">{resetOperator.email}</p>

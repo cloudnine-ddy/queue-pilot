@@ -23,9 +23,9 @@ const quickLinks = [
 
 function MetricCard({ label, value }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-[1.4rem] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.035)]">
       <p className="text-sm font-medium text-slate-500">{label}</p>
-      <p className="mt-2 text-3xl font-semibold text-slate-950">{value}</p>
+      <p className="mt-2 text-3xl font-bold tracking-[-0.025em] text-monash-ink">{value}</p>
     </div>
   );
 }
@@ -70,7 +70,7 @@ export function AdminDashboardPage() {
 
   return (
     <>
-      <header className="mb-8 border-b border-slate-200 pb-5">
+      <header className="mb-7">
         <p className="brand-kicker">Admin</p>
         <h1 className="brand-title">Dashboard</h1>
         <p className="mt-3 max-w-2xl text-[15px] leading-6 text-slate-600">
@@ -80,11 +80,11 @@ export function AdminDashboardPage() {
 
       <AlertMessage message={error} />
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="brand-card p-6 sm:p-7">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="text-sm font-medium text-slate-500">Active event</p>
-            <h2 className="mt-1 text-2xl font-semibold text-slate-950">
+            <p className="section-eyebrow">Active event</p>
+            <h2 className="section-title">
               {event ? event.name : 'No active event'}
             </h2>
             <p className="mt-2 text-[15px] leading-6 text-slate-600">
@@ -102,14 +102,14 @@ export function AdminDashboardPage() {
           <div className="flex flex-col gap-3 sm:flex-row">
             {event && (
               <Link
-                className="inline-flex justify-center rounded-md bg-monash-blue px-4 py-2 text-sm font-semibold text-white hover:bg-monash-blue-dark"
+                className="brand-button-primary inline-flex justify-center py-3"
                 to={`/admin/events/${event.id}`}
               >
                 View active queue
               </Link>
             )}
             <Link
-              className="inline-flex justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100"
+              className="brand-button-secondary inline-flex justify-center"
               to="/admin/events"
             >
               Manage events
@@ -129,23 +129,26 @@ export function AdminDashboardPage() {
       <section className="mt-6 grid gap-4 lg:grid-cols-3">
         {quickLinks.map((link) => (
           <Link
-            className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm hover:border-monash-blue hover:shadow-md"
+            className="group rounded-[1.4rem] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.035)] transition hover:-translate-y-0.5 hover:shadow-md"
             key={link.to}
             to={link.to}
           >
-            <p className="text-lg font-semibold text-monash-ink">{link.label}</p>
+            <div className="flex items-center justify-between gap-4">
+              <p className="text-lg font-semibold text-monash-ink">{link.label}</p>
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-400 group-hover:bg-monash-blue-soft group-hover:text-monash-blue">→</span>
+            </div>
             <p className="mt-2 text-[15px] leading-6 text-slate-600">{link.description}</p>
           </Link>
         ))}
       </section>
 
-      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="brand-card mt-6 p-6 sm:p-7">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-slate-500">Live queues</p>
-            <h2 className="mt-1 text-xl font-semibold text-slate-950">Faculty status</h2>
+            <p className="section-eyebrow">Live queues</p>
+            <h2 className="section-title">Faculty status</h2>
           </div>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+          <span className="status-pill bg-slate-100 text-slate-600">
             {faculties.length} faculties
           </span>
         </div>

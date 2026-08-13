@@ -116,7 +116,7 @@ export function AdminEventDetailPage() {
 
   return (
     <>
-      <header className="mb-8 border-b border-slate-200 pb-5">
+      <header className="mb-7">
         <Link className="text-sm font-semibold text-slate-600 hover:text-slate-950" to="/admin/events">
           Back to events
         </Link>
@@ -147,11 +147,11 @@ export function AdminEventDetailPage() {
       <AlertMessage message={error} />
 
       {summary && (
-        <section className="mb-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <section className="brand-card mb-6 p-6 sm:p-7">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-medium text-slate-500">Summary</p>
-              <h2 className="mt-1 text-xl font-semibold text-slate-950">
+              <p className="section-eyebrow">Summary</p>
+              <h2 className="section-title">
                 Final event snapshot
               </h2>
             </div>
@@ -224,33 +224,33 @@ export function AdminEventDetailPage() {
       )}
 
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[1.4rem] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.035)]">
           <p className="text-sm font-medium text-slate-500">Total</p>
           <p className="mt-2 text-2xl font-semibold text-slate-950">{totals.total}</p>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[1.4rem] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.035)]">
           <p className="text-sm font-medium text-slate-500">Waiting</p>
           <p className="mt-2 text-2xl font-semibold text-slate-950">{totals.waiting}</p>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[1.4rem] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.035)]">
           <p className="text-sm font-medium text-slate-500">Called</p>
           <p className="mt-2 text-2xl font-semibold text-slate-950">{totals.called}</p>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[1.4rem] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.035)]">
           <p className="text-sm font-medium text-slate-500">Done</p>
           <p className="mt-2 text-2xl font-semibold text-slate-950">{totals.done}</p>
         </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="rounded-[1.4rem] bg-white p-5 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_rgba(15,23,42,0.035)]">
           <p className="text-sm font-medium text-slate-500">Cancelled</p>
           <p className="mt-2 text-2xl font-semibold text-slate-950">{totals.cancelled}</p>
         </div>
       </section>
 
-      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="brand-card mt-6 p-6 sm:p-7">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-slate-500">Queues</p>
-            <h2 className="mt-1 text-xl font-semibold text-slate-950">Faculty queues</h2>
+            <p className="section-eyebrow">Queues</p>
+            <h2 className="section-title">Faculty queues</h2>
           </div>
           <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
             {faculties.length} faculties
@@ -296,11 +296,11 @@ export function AdminEventDetailPage() {
         </div>
       </section>
 
-      <section className="mt-6 rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+      <section className="brand-card mt-6 p-6 sm:p-7">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-slate-500">Tickets</p>
-            <h2 className="mt-1 text-xl font-semibold text-slate-950">Recent tickets</h2>
+            <p className="section-eyebrow">Tickets</p>
+            <h2 className="section-title">Recent tickets</h2>
           </div>
           <span className="w-fit rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
             {tickets.length} shown

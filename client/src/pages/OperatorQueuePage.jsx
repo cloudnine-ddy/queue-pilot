@@ -31,9 +31,12 @@ function readOperatorSession() {
 
 function OperatorStatePanel({ message, onSignOut, title }) {
   return (
-    <section className="brand-card p-5">
-      <h2 className="text-lg font-semibold text-monash-ink">{title}</h2>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{message}</p>
+    <section className="brand-card p-6 sm:p-7">
+      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-monash-blue-soft text-xl text-monash-blue">
+        i
+      </div>
+      <h2 className="section-title mt-5">{title}</h2>
+      <p className="mt-2 text-[15px] leading-6 text-slate-600">{message}</p>
       <button
         className="brand-button-secondary mt-5"
         onClick={onSignOut}
@@ -258,24 +261,33 @@ export function OperatorQueuePage() {
   return (
     <main className="brand-page">
       <div className="brand-shell max-w-5xl">
-        <header className="mb-8 border-b border-slate-200 pb-6">
-          <p className="brand-kicker">Operator console</p>
-          <h1 className="brand-title">
-            {event?.name || 'Queue'}
-          </h1>
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm text-slate-600">
-              Signed in as <span className="font-semibold text-monash-ink">{session.operator.name}</span>
-              <span className="mx-2 text-slate-300">/</span>
-              <span>{session.operator.faculty.name}</span>
-            </p>
+        <header className="app-header">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="brand-kicker">Operator console</p>
+              <h1 className="brand-title">{event?.name || 'Queue'}</h1>
+            </div>
             <button
-              className="brand-button-secondary w-fit px-3"
+              aria-label="Sign out"
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-slate-600 hover:bg-monash-blue-soft hover:text-monash-blue"
               onClick={handleSignOut}
               type="button"
             >
-              Sign out
+              <svg aria-hidden="true" className="h-5 w-5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="m16 17 5-5-5-5" />
+                <path d="M21 12H9" />
+              </svg>
             </button>
+          </div>
+          <div className="mt-6 flex flex-col gap-3 rounded-2xl bg-[#f4f5f8] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Faculty queue</p>
+              <p className="mt-1 text-[15px] font-semibold text-monash-ink">{session.operator.faculty.name}</p>
+            </div>
+            <p className="text-sm text-slate-500">
+              Signed in as <span className="font-semibold text-slate-700">{session.operator.name}</span>
+            </p>
           </div>
           {event?.scheduledEndAt && (
             <p className="mt-3 text-sm text-slate-500">
@@ -300,7 +312,7 @@ export function OperatorQueuePage() {
           <>
             <AlertMessage message={error} />
             {notice && (
-              <div className="mb-5 rounded-md border border-monash-blue/20 bg-monash-blue-soft px-4 py-3 text-sm font-medium text-monash-blue">
+              <div className="mb-5 rounded-2xl bg-monash-blue-soft px-4 py-3.5 text-sm font-medium text-monash-blue">
                 {notice}
               </div>
             )}

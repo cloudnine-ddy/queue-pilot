@@ -32,9 +32,9 @@ export function PasswordField({ id, onChange, value }) {
   const [isVisible, setIsVisible] = useState(false);
 
   return (
-    <div className="mt-2 flex">
+    <div className="relative mt-2">
       <input
-        className="brand-input min-w-0 flex-1 rounded-r-none border-r-0"
+        className="brand-input min-w-0 w-full pr-12"
         id={id}
         onChange={onChange}
         type={isVisible ? 'text' : 'password'}
@@ -42,7 +42,7 @@ export function PasswordField({ id, onChange, value }) {
       />
       <button
         aria-label={isVisible ? 'Hide password' : 'Show password'}
-        className="rounded-r-md border border-slate-300 bg-white px-3 text-slate-600 hover:border-monash-blue hover:text-monash-blue"
+        className="absolute inset-y-0 right-1 flex w-11 items-center justify-center rounded-xl text-slate-500 hover:bg-monash-blue-soft hover:text-monash-blue"
         onClick={() => setIsVisible((value) => !value)}
         type="button"
       >

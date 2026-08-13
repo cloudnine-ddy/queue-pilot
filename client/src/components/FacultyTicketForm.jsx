@@ -6,35 +6,41 @@ export function FacultyTicketForm({
   selectedFacultyId,
 }) {
   return (
-    <section className="brand-card p-5">
+    <section className="brand-card p-5 sm:p-7">
       <form onSubmit={onSubmit}>
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-medium text-slate-500">Choose a faculty</p>
-            <h2 className="mt-1 text-xl font-semibold text-monash-ink">Queue selection</h2>
+            <p className="section-eyebrow">Step 1 of 1</p>
+            <h2 className="section-title">Choose a queue</h2>
           </div>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700">
+          <span className="status-pill bg-slate-100 text-slate-600">
             {faculties.length} available
           </span>
         </div>
 
-        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-4">
           {faculties.map((faculty) => {
             const isSelected = selectedFacultyId === faculty.id;
 
             return (
               <button
-                className={`min-h-24 rounded-md border px-4 py-3 text-left transition ${
+                aria-pressed={isSelected}
+                className={`relative min-h-32 rounded-[1.4rem] px-4 py-4 text-left transition sm:min-h-28 sm:px-5 ${
                   isSelected
-                    ? 'border-monash-blue bg-monash-blue-soft text-monash-ink shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-800 hover:border-monash-blue hover:bg-slate-50'
+                    ? 'bg-monash-blue-soft text-monash-ink ring-2 ring-monash-blue'
+                    : 'bg-[#f4f5f8] text-slate-800 hover:bg-slate-100'
                 }`}
                 key={faculty.id}
                 onClick={() => onChangeFaculty(faculty.id)}
                 type="button"
               >
-                <span className="block text-sm font-semibold">{faculty.code}</span>
-                <span className="mt-2 block text-sm leading-5">{faculty.name}</span>
+                <span className={`inline-flex h-9 min-w-9 items-center justify-center rounded-xl px-2 text-xs font-bold ${isSelected ? 'bg-monash-blue text-white' : 'bg-white text-monash-blue'}`}>
+                  {faculty.code}
+                </span>
+                <span className="mt-4 block text-[15px] font-semibold leading-5">{faculty.name}</span>
+                <span className={`absolute right-4 top-4 flex h-6 w-6 items-center justify-center rounded-full ${isSelected ? 'bg-monash-blue text-white' : 'bg-white text-transparent'}`}>
+                  ✓
+                </span>
               </button>
             );
           })}
@@ -45,7 +51,7 @@ export function FacultyTicketForm({
           disabled={!selectedFacultyId || isSubmitting}
           type="submit"
         >
-          {isSubmitting ? 'Creating number...' : 'Take number'}
+          {isSubmitting ? 'Creating your ticket...' : 'Get my ticket'}
         </button>
       </form>
     </section>

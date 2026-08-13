@@ -134,14 +134,13 @@ export function TicketStatusPage() {
   return (
     <main className="brand-page">
       <div className="brand-shell max-w-3xl">
-        <header className="mb-8 border-b border-slate-200 pb-6">
-          <p className="brand-kicker">Monash Queue Pilot</p>
-          <h1 className="brand-title">
-            Ticket status
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-slate-600">
-            Keep this page open. Your status will update when the queue changes.
-          </p>
+        <header className="app-header">
+          <p className="brand-kicker">Queue Pilot</p>
+          <h1 className="brand-title">Your ticket</h1>
+          <div className="mt-4 flex items-start gap-3 rounded-2xl bg-monash-blue-soft px-4 py-3 text-sm leading-5 text-slate-700">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-monash-blue text-xs font-bold text-monash-blue">i</span>
+            <span>Keep this page open. Your place and status update automatically.</span>
+          </div>
         </header>
 
         <AlertMessage message={error} />

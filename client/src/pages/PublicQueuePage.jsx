@@ -95,15 +95,23 @@ export function PublicQueuePage() {
   return (
     <main className="brand-page">
       <div className="brand-shell max-w-3xl">
-        <header className="mb-8 border-b border-slate-200 pb-6">
-          <p className="brand-kicker">Monash Queue Pilot</p>
-          <h1 className="brand-title">
-            {event?.name || 'Queue'}
-          </h1>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-            Select the faculty queue you need. Your ticket status will update automatically after
-            you take a number.
-          </p>
+        <header className="app-header">
+          <div className="flex items-center gap-3">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-monash-blue text-lg font-bold text-white shadow-sm">
+              Q
+            </span>
+            <div>
+              <p className="brand-kicker">Queue Pilot</p>
+              <p className="mt-0.5 text-sm text-slate-500">Monash event queues</p>
+            </div>
+          </div>
+          <div className="mt-7">
+            <p className="section-eyebrow">Now serving</p>
+            <h1 className="brand-title">{event?.name || 'Queue'}</h1>
+            <p className="mt-3 max-w-2xl text-[15px] leading-6 text-slate-600">
+              Choose where you need help, then keep your ticket page open for live updates.
+            </p>
+          </div>
         </header>
 
         <AlertMessage message={error} />

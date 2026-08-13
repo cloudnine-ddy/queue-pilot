@@ -31,8 +31,8 @@ export function OperatorLoginPage() {
   }
 
   return (
-    <main className="brand-page flex items-center">
-      <div className="mx-auto grid w-full max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
+    <main className="brand-page flex items-start py-12 sm:items-center sm:py-8">
+      <div className="mx-auto grid w-full min-w-0 max-w-5xl gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
         <section className="hidden lg:block">
           <p className="brand-kicker">Monash Queue Pilot</p>
           <h1 className="mt-3 max-w-xl text-4xl font-semibold tracking-normal text-monash-ink">
@@ -43,10 +43,13 @@ export function OperatorLoginPage() {
           </p>
         </section>
 
-        <section className="brand-card p-6">
-          <header className="mb-6 border-b border-slate-200 pb-5">
+        <section className="brand-card min-w-0 p-6 sm:p-7">
+          <header className="mb-7">
             <p className="brand-kicker">Operator</p>
             <h1 className="brand-title">Sign in</h1>
+            <p className="mt-3 text-sm leading-6 text-slate-500">
+              Open your assigned faculty queue and start serving visitors.
+            </p>
           </header>
 
           <AlertMessage message={error} />
@@ -56,7 +59,7 @@ export function OperatorLoginPage() {
               Email
             </label>
             <input
-              className="brand-input mt-2 w-full"
+              className="brand-input mt-2 w-full min-w-0"
               id="email"
               onChange={(event) => setEmail(event.target.value)}
               type="email"

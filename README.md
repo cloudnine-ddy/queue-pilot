@@ -4,7 +4,7 @@
 
 Queue Pilot replaces manual visitor registration and repeated verbal calling with a shared digital flow. Visitors take a number from their phones, operators manage a faculty-specific queue, and administrators coordinate the event from a desktop workspace.
 
-> **Project status:** Functional MVP, under active development. The Visitor, Operator, and Admin flows have been manually validated locally. A Railway deployment is configured but intentionally kept offline until a live demo is needed.
+> **Project status:** Portfolio-ready functional MVP. The Visitor, Operator, and Admin flows have been manually validated locally. A Railway deployment is configured but intentionally kept offline until a live demo is needed.
 
 ## Demo
 
@@ -196,7 +196,7 @@ npm run prisma:studio -w server
 
 ## Current limitations
 
-- This is an MVP and is still being refined rather than a finished production service.
+- This is a portfolio MVP rather than a finished production service.
 - Automated tests have not yet been added; the three role flows are currently validated manually.
 - The configured Railway services are intentionally offline, so there is no permanent public demo URL yet.
 - The current notification experience is in-browser; SMS, email, and native push notifications are not implemented.
